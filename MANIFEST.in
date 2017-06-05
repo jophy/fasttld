@@ -1,0 +1,3 @@
+include fasttld/public_suffix_list.dat
+include tests *.py
+include LICENSE
