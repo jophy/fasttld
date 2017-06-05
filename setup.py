@@ -4,7 +4,7 @@ setup(
     name='fasttld',
     version='0.1',
     packages=['fasttld'],
-    url='https://github.com/jophy/FastTLDExtract',
+    url='https://github.com/jophy/fasttld',
     license='GPL',
     author='Jophy',
     author_email='jophy.tsui@gmail.com',
