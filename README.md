@@ -10,7 +10,7 @@ The plan of fasttld module is to extract domains from millions lines of DNS data
 
 But it is wrong ! Think about how to process "www.baidu.com.cn". So we must know what suffixes are.
 
-Thanks to [Mozilla Public Suffix List]((http://www.publicsuffix.org)),it provides us with all suffixes list, including 
+Thanks to [Mozilla Public Suffix List](http://www.publicsuffix.org),it provides us with all suffixes list, including 
 some private domains such like 'blogspot.co.uk', 'sinaapp.com'.
 
 # Install
