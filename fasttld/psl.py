@@ -48,15 +48,21 @@ def getPublicSuffixList(file_path):
     return PublicSuffixList, PrivateSuffixList, AllSuffixList
 
 
-def update():
+def update(show_output=True):
     """
     Update Public Suffix List from https://publicsuffix.org/list/public_suffix_list.dat 
     :return: 
     """
-    file_path = os.path.dirname(os.path.realpath(__file__)) + "/public_suffix_list.dat"
-    base_url = 'https://publicsuffix.org/list/public_suffix_list.dat'
-    downfile = urllib.URLopener()
-    downfile.retrieve(base_url, file_path)
+    try:
+        file_path = os.path.dirname(os.path.realpath(__file__)) + "/public_suffix_list.dat"
+        base_url = 'https://publicsuffix.org/list/public_suffix_list.dat'
+        downfile = urllib.URLopener()
+        downfile.retrieve(base_url, file_path)
+        if show_output:
+            print('Already update the public suffix list.\nThe file path is:')
+            print(file_path)
+    except Exception as e:
+        raise ('[+]PSL UPDATES Error:' + str(e))
 
 
 def auto_update():
@@ -75,6 +81,6 @@ def auto_update():
         # file not found
         need_update = True
     if need_update:
-        update()
+        update(show_output=False)
 
 auto_update()
