@@ -113,4 +113,4 @@ fasttld      |    2.73   |       3.08      |  1.90
 `fasttld` is **five** times faster than the other modules.
 
 # License
-GPL 3.0
+Under MIT License

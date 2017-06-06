@@ -3,7 +3,7 @@ from setuptools import setup
 import sys
 import os
 
-version = '0.2'
+version = '0.2.1'
 
 
 def test_suite():
@@ -16,6 +16,13 @@ def test_suite():
     test_loader = unittest.TestLoader()
     test_suite = test_loader.discover('tests', pattern='maintest.py')
     return test_suite
+
+if sys.argv[-1] == 'publish':
+    os.system("python setup.py sdist upload")
+    os.system("git tag v%s" % (version))
+    os.system("git push --tags")
+    print("All Done!")
+    sys.exit()
 
 
 setup(
@@ -34,7 +41,7 @@ setup(
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Topic :: Utilities",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
@@ -45,14 +52,3 @@ setup(
         "Programming Language :: Python :: 3.6",
                  ],
 )
-
-if sys.argv[-1] == 'publish':
-    os.system("python setup.py sdist upload")
-    os.system("git tag -a %s -m 'version %s'" % (version, version))
-    os.system("git push --tags")
-    print("All Done!")
-    sys.exit()
-
-
-
-
