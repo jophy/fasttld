@@ -8,7 +8,6 @@
 
 Copyright (c) 2017 Jophy
 """
-import urllib
 import os.path
 import time
 
@@ -31,7 +30,11 @@ def getPublicSuffixList(file_path):
     if not os.path.isfile(file_path):
         raise Exception("\rPath:" + file_path + " .\nPublic suffix list file not found.")
 
-    with open(file_path, 'r') as fd:
+    try:
+        fd = open(file_path, 'r', encoding='utf-8')
+    except:
+        fd = open(file_path, 'r')
+    with fd:
         for line in fd:
             line = line.strip()
             if "// ===BEGIN PRIVATE DOMAINS===" == line:
@@ -44,6 +47,7 @@ def getPublicSuffixList(file_path):
                 suffix = line.decode('utf-8').encode('idna')
             except:
                 suffix = line.encode('idna')  # py3.x
+                suffix = str(suffix, 'utf-8')  # py3.x
             if pri_flag:
                 PrivateSuffixList.append(suffix)
             else:
@@ -60,13 +64,18 @@ def update(show_output=True):
     try:
         file_path = os.path.dirname(os.path.realpath(__file__)) + "/public_suffix_list.dat"
         base_url = 'https://publicsuffix.org/list/public_suffix_list.dat'
-        downfile = urllib.URLopener()
-        downfile.retrieve(base_url, file_path)
+        try:
+            import urllib
+            downfile = urllib.URLopener()
+            downfile.retrieve(base_url, file_path)
+        except:
+            import urllib.request
+            urllib.request.urlretrieve(base_url, file_path)
         if show_output:
             print('Already update the public suffix list.\nThe file path is:')
             print(file_path)
     except Exception as e:
-        raise ('[+]PSL UPDATES Error:' + str(e))
+        raise Exception('[+]PSL UPDATES Error:' + str(e))
 
 
 def auto_update():
