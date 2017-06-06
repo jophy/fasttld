@@ -10,4 +10,5 @@ python:
 install:
   - pip install .
   - pip install -r requirements.txt
+  - pip install unittest2
 script: python setup.py test

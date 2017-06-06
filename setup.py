@@ -1,4 +1,5 @@
 from setuptools import setup
+
 import sys
 import os
 
@@ -7,11 +8,12 @@ version = '0.1.1'
 
 def test_suite():
     try:
-        import unittest
-        test_loader = unittest.TestLoader()
-    except:
         import unittest2
-        test_loader = unittest2.TestLoader()
+        unittest = unittest2
+    except:
+        import unittest
+
+    test_loader = unittest.TestLoader()
     test_suite = test_loader.discover('tests', pattern='maintest.py')
     return test_suite
 
