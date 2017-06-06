@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='fasttld',
-    version='0.1',
+    version='0.1.1',
     packages=['fasttld'],
     url='https://github.com/jophy/fasttld',
     license='GPL',
