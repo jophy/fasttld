@@ -8,8 +8,8 @@
 
 Copyright (c) 2017 Jophy
 """
-from psl import getPublicSuffixList
-from psl import update
+from fasttld.psl import getPublicSuffixList
+from fasttld.psl import update
 
 import idna
 

@@ -9,5 +9,5 @@
 Copyright (c) 2017 Jophy
 """
 
-from .FastTLDExtract import FastTLDExtract
-from .psl import update
+from fasttld.FastTLDExtract import FastTLDExtract
+from fasttld.psl import update
