@@ -47,7 +47,7 @@ def getPublicSuffixList(file_path):
             if pri_flag:
                 PrivateSuffixList.append(suffix)
             else:
-                PublicSuffixList.append(line.decode('utf-8').encode('idna'))
+                PublicSuffixList.append(suffix)
             AllSuffixList.append(suffix)
     return PublicSuffixList, PrivateSuffixList, AllSuffixList
 
