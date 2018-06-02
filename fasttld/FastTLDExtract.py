@@ -71,6 +71,9 @@ class FastTLDExtract(object):
                         key: True
                     })
         return tld_trie
+    
+    def __call__(self, *args, **kwargs):
+        return self.extract(*args, **kwargs)
 
     def extract(self, input, subdomain=True, format=False):
         """
