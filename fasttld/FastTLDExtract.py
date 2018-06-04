@@ -18,8 +18,8 @@ class FastTLDExtract(object):
     def __init__(self, exclude_private_suffix=False, file_path=''):
         self.trie = self._trie_construct(exclude_private_suffix, file_path)
 
-    def update(self):
-        update()
+    def update(self, *args, **kwargs):
+        update(*args, **kwargs)
 
     def nested_dict(self, dic, keys):
         """
