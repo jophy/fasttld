@@ -1,9 +1,9 @@
+import os
+import sys
+
 from setuptools import setup
 
-import sys
-import os
-
-version = '0.2.1'
+version = '0.2.2'
 
 
 def test_suite():
@@ -50,5 +50,9 @@ setup(
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
                  ],
 )
