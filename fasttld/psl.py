@@ -72,7 +72,7 @@ def update(show_output=True):
             import urllib.request
             urllib.request.urlretrieve(base_url, file_path)
         if show_output:
-            print('Already update the public suffix list.\nThe file path is:')
+            print('Already updated the public suffix list.\nThe file path is:')
             print(file_path)
     except Exception as e:
         raise Exception('[+]PSL UPDATES Error:' + str(e))
