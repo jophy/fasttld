@@ -65,11 +65,8 @@ class FastTLDExtract(object):
                     }
                 })
         for key, val in tld_trie.items():
-            if len(tld_trie[key]) == 1:
-                if '_END' in val:
-                    tld_trie.update({
-                        key: True
-                    })
+            if len(val) == 1 and '_END' in val:
+                tld_trie[key] = True
         return tld_trie
     
     def __call__(self, *args, **kwargs):
