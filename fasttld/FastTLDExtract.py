@@ -8,10 +8,8 @@
 
 Copyright (c) 2017 Jophy
 """
-from fasttld.psl import getPublicSuffixList
-from fasttld.psl import update
-
 import idna
+from fasttld.psl import getPublicSuffixList, update
 
 
 class FastTLDExtract(object):
@@ -24,9 +22,9 @@ class FastTLDExtract(object):
     def nested_dict(self, dic, keys):
         """
         The idea of this function is based on https://stackoverflow.com/questions/13687924
-        :param dic: 
-        :param keys: 
-        :return: 
+        :param dic:
+        :param keys:
+        :return:
         """
         for key in keys[:-1]:
             dic_bk = dic
@@ -66,17 +64,17 @@ class FastTLDExtract(object):
                 })
         for key, val in tld_trie.items():
             if len(val) == 1 and '_END' in val:
-                tld_trie[key] = True
+                tld_trie[key].update({key: True})
         return tld_trie
-    
+
     def __call__(self, *args, **kwargs):
         return self.extract(*args, **kwargs)
 
     def extract(self, input, subdomain=True, format=False):
         """
         Extract suffix and subdomain from a Domain.
-        :param input: 
-        :param subdomain: Output options. This option will reduce efficiency. Maybe 10% 
+        :param input:
+        :param subdomain: Output options. This option will reduce efficiency. Maybe 10%
         :param format: To format input string.
         :return: Tuple(subdomain, domain, suffix, domain_name)
         >>> FastTLDExtract.extract('www.google.com.hk', subdomain=True)
@@ -155,14 +153,13 @@ class FastTLDExtract(object):
         """
         Now we provide simple rules to format strings.
         eg. lower case, punycode transform
-        Todo: 
+        Todo:
         1.URL Parser to extract domain.
         2.idna domain parser
-        :param input: 
+        :param input:
         :return: input
         """
-        input = input.strip().lower()
-        input = idna.encode(input)
+        # input = idna.encode(input.strip().lower()).decode()
         # input = urlparse.urlparse(input).netloc
         # if '//' in input:
         #     _, _, input = input.rpartition('//')
@@ -170,4 +167,4 @@ class FastTLDExtract(object):
         #     input, _, _ = input.lpartition('//')
         # Punycode costs too much time! Make sure you really need it.
 
-        return input
+        return idna.encode(input.strip().lower()).decode()
