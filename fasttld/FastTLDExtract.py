@@ -9,6 +9,7 @@
 Copyright (c) 2017 Jophy
 """
 import idna
+
 from fasttld.psl import getPublicSuffixList, update
 
 
@@ -64,7 +65,7 @@ class FastTLDExtract(object):
                 })
         for key, val in tld_trie.items():
             if len(val) == 1 and '_END' in val:
-                tld_trie[key].update({key: True})
+                tld_trie[key] = True
         return tld_trie
 
     def __call__(self, *args, **kwargs):
