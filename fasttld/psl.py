@@ -32,7 +32,7 @@ def getPublicSuffixList(file_path):
 
     try:
         fd = open(file_path, 'r', encoding='utf-8')
-    except:
+    except Exception:
         fd = open(file_path, 'r')
     with fd:
         for line in fd:
@@ -45,7 +45,7 @@ def getPublicSuffixList(file_path):
                 continue
             try:
                 suffix = line.decode('utf-8').encode('idna')
-            except:
+            except Exception:
                 suffix = line.encode('idna')  # py3.x
                 suffix = str(suffix, 'utf-8')  # py3.x
             if pri_flag:
@@ -58,8 +58,8 @@ def getPublicSuffixList(file_path):
 
 def update(show_output=True):
     """
-    Update Public Suffix List from https://publicsuffix.org/list/public_suffix_list.dat 
-    :return: 
+    Update Public Suffix List from https://publicsuffix.org/list/public_suffix_list.dat
+    :return:
     """
     try:
         file_path = os.path.dirname(os.path.realpath(__file__)) + "/public_suffix_list.dat"
@@ -68,7 +68,7 @@ def update(show_output=True):
             import urllib
             downfile = urllib.URLopener()
             downfile.retrieve(base_url, file_path)
-        except:
+        except Exception:
             import urllib.request
             urllib.request.urlretrieve(base_url, file_path)
         if show_output:
@@ -82,7 +82,7 @@ def auto_update():
     """
     Update Public Suffix List from https://publicsuffix.org/list/public_suffix_list.dat
     This function will update public_suffix_list.dat file every 3 days.
-    :return: 
+    :return:
     """
     need_update = False
     file_path = os.path.dirname(os.path.realpath(__file__)) + "/public_suffix_list.dat"
@@ -95,5 +95,6 @@ def auto_update():
         need_update = True
     if need_update:
         update(show_output=False)
+
 
 auto_update()
