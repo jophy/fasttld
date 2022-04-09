@@ -10,12 +10,13 @@ def test_suite():
     try:
         import unittest2
         unittest = unittest2
-    except:
+    except Exception:
         import unittest
 
     test_loader = unittest.TestLoader()
     test_suite = test_loader.discover('tests', pattern='maintest.py')
     return test_suite
+
 
 if sys.argv[-1] == 'publish':
     os.system("python setup.py sdist upload")
@@ -33,7 +34,8 @@ setup(
     license='GPL',
     author='Jophy',
     author_email='jophy.tsui@gmail.com',
-    description='Python high performance TLD extract module based on a compressed trie with builtin python dict.',
+    description='Python high performance TLD extract module based '
+    'on a compressed trie with builtin python dict.',
     include_package_data=True,
     zip_safe=False,
     install_requires=['idna', 'setuptools'],

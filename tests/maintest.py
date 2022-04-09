@@ -1,5 +1,6 @@
-from fasttld import FastTLDExtract
 import unittest
+
+from fasttld import FastTLDExtract
 
 all_suffix = FastTLDExtract(exclude_private_suffix=False)
 no_private_suffix = FastTLDExtract(exclude_private_suffix=True)
@@ -32,16 +33,16 @@ class FastTLDExtractCase(unittest.TestCase):
         self.assertEqual('github' in trie['io'], False)
 
     def test_no_private_suffix_extract(self):
-        self.assertEqual(no_private_suffix.extract("www.myownblog.blogspot.ca"), ('www.myownblog', 'blogspot', 'ca',
-                                                                                  'blogspot.ca'))
-        self.assertEqual(no_private_suffix.extract("192.168.1.1.no-ip.co.uk"), ('192.168.1.1', 'no-ip', 'co.uk',
-                                                                                'no-ip.co.uk'))
+        self.assertEqual(no_private_suffix.extract("www.myownblog.blogspot.ca"),
+                         ('www.myownblog', 'blogspot', 'ca', 'blogspot.ca'))
+        self.assertEqual(no_private_suffix.extract("192.168.1.1.no-ip.co.uk"),
+                         ('192.168.1.1', 'no-ip', 'co.uk', 'no-ip.co.uk'))
 
     def test_private_suffix_extract(self):
-        self.assertEqual(all_suffix.extract("www.myownblog.blogspot.ca"), ('www', 'myownblog', 'blogspot.ca',
-                                                                           'myownblog.blogspot.ca'))
-        self.assertEqual(all_suffix.extract("192.168.1.1.no-ip.co.uk"), ('192.168.1', '1', 'no-ip.co.uk',
-                                                                         '1.no-ip.co.uk'))
+        self.assertEqual(all_suffix.extract("www.myownblog.blogspot.ca"),
+                         ('www', 'myownblog', 'blogspot.ca', 'myownblog.blogspot.ca'))
+        self.assertEqual(all_suffix.extract("192.168.1.1.no-ip.co.uk"),
+                         ('192.168.1', '1', 'no-ip.co.uk', '1.no-ip.co.uk'))
 
     def test_all_extract(self):
         todo = [
@@ -95,11 +96,64 @@ class FastTLDExtractCase(unittest.TestCase):
 
     def test_us_k12(self):
         self.assertEqual(all_suffix.extract("ak.us"), ('', '', 'ak.us', ''))
-        self.assertEqual(all_suffix.extract("test.k12.ak.us"), ('', 'test', 'k12.ak.us', 'test.k12.ak.us'))
-        self.assertEqual(all_suffix.extract("www.test.k12.ak.us"), ('www', 'test', 'k12.ak.us', 'test.k12.ak.us'))
+        self.assertEqual(all_suffix.extract("test.k12.ak.us"),
+                         ('', 'test', 'k12.ak.us', 'test.k12.ak.us'))
+        self.assertEqual(all_suffix.extract("www.test.k12.ak.us"),
+                         ('www', 'test', 'k12.ak.us', 'test.k12.ak.us'))
 
     def test_punycode(self):
-        self.assertEqual(all_suffix.extract("xn--85x722f.com.cn"), ('', 'xn--85x722f', 'com.cn', 'xn--85x722f.com.cn'))
+        self.assertEqual(all_suffix.extract("xn--85x722f.com.cn"),
+                         ('', 'xn--85x722f', 'com.cn', 'xn--85x722f.com.cn'))
+
+    def test_scheme_port_path(self):
+        # no_private_suffix
+        no_private_suffix_asserts = [('', 'blogspot', 'com', 'blogspot.com'),
+                                     ('google', 'blogspot', 'com', 'blogspot.com')]
+        self.assertEqual(no_private_suffix.extract("https://blogspot.com"),
+                         no_private_suffix_asserts[0])
+        self.assertEqual(no_private_suffix.extract("https://blogspot.com", subdomain=False),
+                         no_private_suffix_asserts[0])
+
+        self.assertEqual(no_private_suffix.extract("https://google.blogspot.com"),
+                         no_private_suffix_asserts[1])
+        self.assertEqual(no_private_suffix.extract("https://google.blogspot.com", subdomain=False),
+                         no_private_suffix_asserts[0])
+        self.assertEqual(no_private_suffix.extract("https://google.blogspot.com:8080"),
+                         no_private_suffix_asserts[1])
+        self.assertEqual(no_private_suffix.extract("https://google.blogspot.com:8080",
+                         subdomain=False),
+                         no_private_suffix_asserts[0])
+        self.assertEqual(no_private_suffix.extract("ftp://google.blogspot.com:8080"
+                         "/a/long/path?query=42things"),
+                         no_private_suffix_asserts[1])
+        self.assertEqual(no_private_suffix.extract("ftp://google.blogspot.com:8080"
+                         "/a/long/path?query=42things", subdomain=False),
+                         no_private_suffix_asserts[0])
+
+        # all_suffix
+        all_suffix_asserts = [('abc', 'google', 'blogspot.com', 'google.blogspot.com'),
+                              ('', 'google', 'blogspot.com', 'google.blogspot.com'),
+                              ('abc', 'google', 'blogspot.com', 'google.blogspot.com')]
+        self.assertEqual(all_suffix.extract("https://abc.google.blogspot.com"),
+                         all_suffix_asserts[0])
+        self.assertEqual(all_suffix.extract("https://abc.google.blogspot.com", subdomain=False),
+                         all_suffix_asserts[1])
+
+        self.assertEqual(all_suffix.extract("https://abc.google.blogspot.com"),
+                         all_suffix_asserts[2])
+        self.assertEqual(all_suffix.extract("https://abc.google.blogspot.com", subdomain=False),
+                         all_suffix_asserts[1])
+        self.assertEqual(all_suffix.extract("https://abc.google.blogspot.com:8080"),
+                         all_suffix_asserts[2])
+        self.assertEqual(all_suffix.extract("https://abc.google.blogspot.com:8080",
+                         subdomain=False),
+                         all_suffix_asserts[1])
+        self.assertEqual(all_suffix.extract("ftp://abc.google.blogspot.com:8080"
+                         "/a/long/path?query=42things"),
+                         all_suffix_asserts[2])
+        self.assertEqual(all_suffix.extract("ftp://abc.google.blogspot.com:8080"
+                         "/a/long/path?query=42things", subdomain=False),
+                         all_suffix_asserts[1])
 
 
 if __name__ == '__main__':

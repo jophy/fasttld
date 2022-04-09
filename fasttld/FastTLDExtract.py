@@ -2,15 +2,48 @@
 # -*- coding: utf-8 -*-
 
 """
-@author: Jophy
+@author: Jophy and Wu Tingfeng
 @file: psl.py
 @time: 17/5/28 23:36
 
-Copyright (c) 2017 Jophy
+Copyright (c) 2022 Wu Tingfeng
+Copyright (c) 2017-2018 Jophy
 """
+import re
+import socket
+
 import idna
 
 from fasttld.psl import getPublicSuffixList, update
+
+IP_RE = re.compile(
+    r"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}"
+    r"([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
+)
+
+# Characters valid in scheme names
+scheme_chars = ('abcdefghijklmnopqrstuvwxyz'
+                'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                '0123456789'
+                '+-.')
+SCHEME_RE = re.compile(r"^([" + scheme_chars + "]+:)?//")
+
+
+def looks_like_ip(maybe_ip: str) -> bool:
+    """Does the given str look like an IP address?"""
+    if not maybe_ip[0].isdigit():
+        return False
+
+    try:
+        socket.inet_aton(maybe_ip)
+        return True
+    except (AttributeError, UnicodeError):
+        if IP_RE.match(maybe_ip):
+            return True
+    except OSError:
+        pass
+
+    return False
 
 
 class FastTLDExtract(object):
@@ -71,23 +104,43 @@ class FastTLDExtract(object):
     def __call__(self, *args, **kwargs):
         return self.extract(*args, **kwargs)
 
-    def extract(self, input, subdomain=True, format=False):
+    def extract(self, raw_url, subdomain=True, format=False):
         """
         Extract suffix and subdomain from a Domain.
-        :param input:
+        :param raw_url:
         :param subdomain: Output options. This option will reduce efficiency. Maybe 10%
-        :param format: To format input string.
+        :param format: To format raw_url string.
         :return: Tuple(subdomain, domain, suffix, domain_name)
         >>> FastTLDExtract.extract('www.google.com.hk', subdomain=True)
         >>> ('www', 'google', 'com.hk', 'google.com.hk')
+
+        >>> FastTLDExtract.extract('127.0.0.1', subdomain=True)
+        >>> ('', '127.0.0.1', '', '127.0.0.1')
         """
         ret_subdomain = ''
         ret_domain = ''
         ret_suffix = ''
         ret_domain_name = ''
         if format:
-            input = self.format(input)
-        labels = input.split('.')
+            raw_url = self.format(raw_url)
+
+        # Borrowed from tldextract library (https://github.com/john-kurkowski/tldextract)
+        # Use regex to strip raw_url of scheme subcomponent and anything after host subcomponent
+        # Reference: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Syntax
+        netloc = (
+            SCHEME_RE.sub("", raw_url)
+            .partition("/")[0]
+            .partition("?")[0]
+            .partition("#")[0]
+            .split("@")[-1]
+            .partition(":")[0]
+            .strip()
+            .rstrip(".")
+        )
+        # Determine if raw_url is an IP address
+        if netloc and looks_like_ip(netloc):
+            return ("", netloc, "", netloc)
+        labels = netloc.split(".")
         labels.reverse()
         node = self.trie  # define the root node
         suffix = []
@@ -140,7 +193,7 @@ class FastTLDExtract(object):
             ret_domain = labels[len_suffix]
             if subdomain:
                 if len_suffix + 1 < len_labels:
-                    ret_subdomain = input[:-(len(ret_domain + ret_suffix) + 2)]
+                    ret_subdomain = netloc[:-(len(ret_domain + ret_suffix) + 2)]
         if ret_domain and ret_suffix:
             ret_domain_name = "%s.%s" % (ret_domain, ret_suffix)
 
@@ -150,22 +203,23 @@ class FastTLDExtract(object):
                 ret_domain_name
                 )
 
-    def format(self, input):
+    def format(self, raw_url):
         """
         Now we provide simple rules to format strings.
         eg. lower case, punycode transform
         Todo:
         1.URL Parser to extract domain.
         2.idna domain parser
-        :param input:
+        :param raw_url:
         :return: input
         """
-        # input = idna.encode(input.strip().lower()).decode()
-        # input = urlparse.urlparse(input).netloc
-        # if '//' in input:
-        #     _, _, input = input.rpartition('//')
-        # if '/' in input:
-        #     input, _, _ = input.lpartition('//')
+        # idna_url = idna.encode(raw_url.strip().lower()).decode()
+        # input_ = urlparse.urlparse(idna_url).netloc
+        # if '//' in input_:
+        #     _, _, input_ = input_.rpartition('//')
+        # if '/' in input_:
+        #     input_, _, _ = input_.lpartition('//')
+        # return input_
         # Punycode costs too much time! Make sure you really need it.
 
-        return idna.encode(input.strip().lower()).decode()
+        return idna.encode(raw_url.strip().lower()).decode()

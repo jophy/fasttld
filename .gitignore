@@ -4,4 +4,6 @@
 build
 dist
 tests/test.py
-fasttld.egg-info
+fasttld.egg-info/
+__pycache__/
+.mypy_cache/

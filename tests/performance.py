@@ -3,18 +3,19 @@
 
 """
 This file is a performance comparision.
-@author: Jophy
+@author: Jophy and Wu Tingfeng
 @file: performance.py
 @time: 17/6/5 21:26
 
-Copyright (c) 2017 Jophy
+Copyright (c) 2022 Wu Tingfeng
+Copyright (c) 2017-2018 Jophy
 """
 
 import time
 
+import tldextract
 from fasttld import FastTLDExtract
 from tld import get_tld
-import tldextract
 
 case1 = 'jophy.com'
 case2 = 'www.baidu.com.cn'
@@ -22,7 +23,7 @@ case3 = 'jo.noexist'
 
 try:
     range = xrange()
-except:
+except Exception:
     pass
 
 # fasttld start
