@@ -31,11 +31,11 @@ setup(
     version=version,
     packages=['fasttld'],
     url='https://github.com/jophy/fasttld',
-    license='GPL',
+    license='MIT',
     author='Jophy',
     author_email='jophy.tsui@gmail.com',
-    description='Python high performance TLD extract module based '
-    'on a compressed trie with builtin python dict.',
+    description='High performance TLD extraction module based on the compressed trie data '
+                'structure implemented with the builtin python dict().',
     include_package_data=True,
     zip_safe=False,
     install_requires=['idna', 'setuptools'],
