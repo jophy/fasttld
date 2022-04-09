@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This file is a performance comparision.
+Performance comparison with similar modules
 @author: Jophy and Wu Tingfeng
 @file: performance.py
 
@@ -10,6 +10,7 @@ Copyright (c) 2022 Wu Tingfeng
 Copyright (c) 2017-2018 Jophy
 """
 
+import sys
 import time
 
 import tldextract
@@ -24,12 +25,10 @@ cases = [
          '1.1.1.1', 'https://192.168.1.1'
         ]
 
-try:
-    range = xrange()
-except Exception:
-    pass
+if sys.version_info.major == 2:
+    range = xrange
 
-num_iterations = 1000_000
+num_iterations = 10000000
 
 # fasttld (subdomain=True）start
 print("fasttld Include subdomains")

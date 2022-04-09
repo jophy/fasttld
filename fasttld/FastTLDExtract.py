@@ -28,7 +28,7 @@ scheme_chars = ('abcdefghijklmnopqrstuvwxyz'
 SCHEME_RE = re.compile(r"^([" + scheme_chars + "]+:)?//")
 
 
-def looks_like_ip(maybe_ip: str) -> bool:
+def looks_like_ip(maybe_ip):
     """Does the given str look like an IP address?"""
     if not maybe_ip[0].isdigit():
         return False
@@ -36,11 +36,11 @@ def looks_like_ip(maybe_ip: str) -> bool:
     try:
         socket.inet_aton(maybe_ip)
         return True
+    except socket.error:  # for Python 2 compatibility
+        pass
     except (AttributeError, UnicodeError):
         if IP_RE.match(maybe_ip):
             return True
-    except OSError:
-        pass
 
     return False
 

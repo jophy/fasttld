@@ -1,9 +1,9 @@
-import os
+import subprocess
 import sys
 
 from setuptools import setup
 
-version = '0.2.2'
+version = 'v0.2.2'
 
 
 def test_suite():
@@ -19,16 +19,16 @@ def test_suite():
 
 
 if sys.argv[-1] == 'publish':
-    os.system("python setup.py sdist upload")
-    os.system("git tag v%s" % (version))
-    os.system("git push --tags")
+    subprocess.call(["python", "setup.py", "sdist", "upload"])
+    subprocess.call(["git", "tag", version])
+    subprocess.call(["git", "push", "--tags"])
     print("All Done!")
     sys.exit()
 
 
 setup(
     name='fasttld',
-    version=version,
+    version=version[1:],
     packages=['fasttld'],
     url='https://github.com/jophy/fasttld',
     license='MIT',

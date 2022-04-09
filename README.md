@@ -32,7 +32,7 @@ or build from source
 
 ```python
 git clone https://github.com/jophy/fasttld.git && cd fasttld
-python setup.py
+python setup.py install
 ```
 
 ## Usage
@@ -119,19 +119,19 @@ Similar modules include [tldextract](https://github.com/john-kurkowski/tldextrac
 
 ### Test conditions
 
-Initialize the module class once, then call its extract function one million times. Measure the time taken.
+Initialize the module class once, then call its extract function ten million times. Measure the time taken.
 
 ### Test environment
 
-AMD Ryzen 7 5800X 3.8 GHz 8 cores 16 threads, 48GB RAM
+Python 3.9.12, AMD Ryzen 7 5800X 3.8 GHz 8 cores 16 threads, 48GB RAM
 
 ### Test results
 
 | **module\case** | **jophy.com** | **www.baidu.com.cn** | **jo.noexist** | **https://maps.google.com.ua/a/long/path?query=42** | **1.1.1.1** | **https://192.168.55.1** |
 |-----------------|---------------|----------------------|----------------|-----------------------------------------------------|-------------|--------------------------|
-| fasttld         | 0.70s         | 1.04s                | 0.51s          | 0.50s                                               | 0.49s       | 0.52s                    |
-| tldextract      | 2.28s         | 3.00s                | 2.50s          | 3.21s                                               | 3.39s       | 3.50s                    |
-| tld             | 2.61s         | 2.81s                | 2.22s          | 2.60s                                               | 2.17s       | 2.16s                    |
+| fasttld         | 6.97s         | 9.55s                | 4.71s          | 5.03s                                               | 4.51s       | 4.70s                    |
+| tldextract      | 23.07s        | 29.73s               | 25.06s         | 31.57s                                              | 33.17s      | 34.70s                   |
+| tld             | 25.69s        | 27.68s               | 21.59s         | 25.79s                                              | 20.73s      | 20.41s                   |
 
 ---
 
@@ -139,7 +139,7 @@ Excluding subdomains (i.e. `subdomain=False`)
 
 | **module\case** | **jophy.com** | **www.baidu.com.cn** | **jo.noexist** | **https://maps.google.com.ua/a/long/path?query=42** | **1.1.1.1** | **https://192.168.55.1** |
 |-----------------|---------------|----------------------|----------------|-----------------------------------------------------|-------------|--------------------------|
-| fasttld         | 0.72s         | 0.90s                | 0.52s          | 0.55s                                               | 0.50s       | 0.50s                    |
+| fasttld         | 6.62s         | 7.92s                | 4.72s          | 4.90s                                               | 4.27s       | 4.50s                    |
 
 On average, **fasttld** is **4 to 5** times faster than the other modules. It retains its performance advantage even when parsing long URLs like `https://maps.google.com.ua/a/long/path?query=42`
 
