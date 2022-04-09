@@ -5,7 +5,6 @@
 This file is a performance comparision.
 @author: Jophy and Wu Tingfeng
 @file: performance.py
-@time: 17/6/5 21:26
 
 Copyright (c) 2022 Wu Tingfeng
 Copyright (c) 2017-2018 Jophy

@@ -4,7 +4,6 @@
 """
 @author: Jophy and Wu Tingfeng
 @file: psl.py
-@time: 17/5/29 00:09
 
 Copyright (c) 2022 Wu Tingfeng
 Copyright (c) 2017-2018 Jophy

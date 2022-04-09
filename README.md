@@ -93,10 +93,7 @@ If you do not need to extract subdomains, you can disable subdomain output with 
 
 ## Optional: Exclude private domains
 
-According to the [Mozilla.org wiki](https://wiki.mozilla.org/Public_Suffix_List/Uses), the Mozilla Public Suffix List contains private domains
-like `blogspot.co.uk` and `sinaapp.com` because some registered domain owners wish to
-delegate subdomains to mutually-untrusting parties, and find that being added to the PSL
-gives their solution more favourable security properties.
+According to the [Mozilla.org wiki](https://wiki.mozilla.org/Public_Suffix_List/Uses), the Mozilla Public Suffix List contains private domains like `blogspot.co.uk` and `sinaapp.com` because some registered domain owners wish to delegate subdomains to mutually-untrusting parties, and find that being added to the PSL gives their solution more favourable security properties.
 
 By default, **fasttld** treats private domains as TLDs (i.e. `exclude_private_suffix=False`)
 
@@ -122,7 +119,7 @@ Similar modules include [tldextract](https://github.com/john-kurkowski/tldextrac
 
 ### Test conditions
 
-Initialize the module class once, then call its extract function one million times.
+Initialize the module class once, then call its extract function one million times. Measure the time taken.
 
 ### Test environment
 
