@@ -10,6 +10,7 @@ Copyright (c) 2017-2018 Jophy
 """
 import re
 import socket
+from operator import itemgetter
 
 import idna
 
@@ -55,21 +56,35 @@ class FastTLDExtract(object):
     def nested_dict(self, dic, keys):
         """
         The idea of this function is based on https://stackoverflow.com/questions/13687924
+
+        Given a dictionary `dic` and a list of keys `keys`, create a nested path of keys
+        and set the value to `True`. The original dictionary `dic` is mutated.
+
+        Example
+
+        >>> dic = {'foo': 'bar'} ; keys = ['a', 'b', 'c'] ; nested_dict(dic, keys) ;
+        >>> dic
+
+            {'foo': 'bar', 'a': {'b': {'c': True}}}
+        ===
+
         :param dic:
         :param keys:
         :return:
         """
-        for key in keys[:-1]:
+        keys_except_last_key, second_last_key, last_key = itemgetter(slice(0, -1), -2, -1)(keys)
+        for key in keys_except_last_key:
             dic_bk = dic
-            dic = dic.setdefault(key, {})
+            if key not in dic:
+                dic[key] = {}
+            dic = dic[key]
             if isinstance(dic, bool):
                 dic = dic_bk
-                dic[keys[-2]] = {}
-                dic[keys[-2]].update({
+                dic[second_last_key] = {
                     '_END': True,
-                    keys[-1]: True
-                })
-        dic[keys[-1]] = True
+                    last_key: True
+                }
+        dic[last_key] = True
 
     def _trie_construct(self, exclude_private_suffix, file_path=''):
         """
@@ -80,10 +95,7 @@ class FastTLDExtract(object):
         """
         tld_trie = {}
         PublicSuffixList, PrivateSuffixList, AllSuffixList = getPublicSuffixList(file_path)
-        if exclude_private_suffix:
-            SuffixList = PublicSuffixList
-        else:
-            SuffixList = AllSuffixList
+        SuffixList = PublicSuffixList if exclude_private_suffix else AllSuffixList
         for suffix in SuffixList:
             if '.' in suffix:
                 sp = suffix.split('.')
@@ -170,7 +182,7 @@ class FastTLDExtract(object):
                 if index < len(labels):
                     # check if there is a sub node
                     # eg. www.ck
-                    if '!'+label in node:
+                    if ("!%s" % label) in node:
                         ret_domain = label
                     else:
                         suffix.append(label)
@@ -192,7 +204,7 @@ class FastTLDExtract(object):
             ret_domain = labels[len_suffix]
             if subdomain:
                 if len_suffix + 1 < len_labels:
-                    ret_subdomain = netloc[:-(len(ret_domain + ret_suffix) + 2)]
+                    ret_subdomain = netloc[:-(len(ret_domain) + len(ret_suffix) + 2)]
         if ret_domain and ret_suffix:
             ret_domain_name = "%s.%s" % (ret_domain, ret_suffix)
 

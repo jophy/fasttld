@@ -26,44 +26,31 @@ cases = [
         ]
 
 if sys.version_info.major == 2:
-    range = xrange
+    range = xrange  # type: ignore
 
 num_iterations = 10000000
 
-# fasttld (subdomain=True）start
-print("fasttld Include subdomains")
-for url in cases:
-    t1 = time.time()
-    t = FastTLDExtract(exclude_private_suffix=True)
-    for i in range(1, num_iterations):
-        t.extract(url, subdomain=True)
-    print("fasttld on '%s' : %ss" % (url, time.time() - t1))
-print("")
+t = FastTLDExtract(exclude_private_suffix=True)
 
-# tldextract start
-print("tldextract")
-for url in cases:
-    t1 = time.time()
-    for i in range(1, num_iterations):
-        tldextract.extract(url)
-    print("tldextract on '%s' : %ss" % (url, time.time() - t1))
-print("")
+test_cases = [('fasttld_with_subdomains',
+              t.extract,
+              {'subdomain': True}),
+              ('tldextract',
+               tldextract.extract,
+              {}),
+              ('tld',
+              get_tld,
+              {'fix_protocol': True, 'fail_silently': True}),
+              ('fasttld_without_subdomains',
+               t.extract,
+              {'subdomain': False})
+              ]
 
-# tld start
-print("tld")
-for url in cases:
-    t1 = time.time()
-    for i in range(1, num_iterations):
-        get_tld(url, fix_protocol=True, fail_silently=True)
-    print("tld on '%s' : %ss" % (url, time.time() - t1))
-print("")
-
-# fasttld（subdomain=False） start
-print("fasttld Exclude subdomains")
-for url in cases:
-    t1 = time.time()
-    t = FastTLDExtract(exclude_private_suffix=True)
-    for i in range(1, num_iterations):
-        t.extract(url, subdomain=False)
-    print("fasttld on '%s' : %ss" % (url, time.time() - t1))
-print("")
+for test_case in test_cases:
+    module, extractor, kwargs = test_case
+    for url in cases:
+        t1 = time.time()
+        for i in range(1, num_iterations):
+            extractor(url, **kwargs)  # type: ignore
+        print("%s on '%s' : %ss" % (module, url, time.time() - t1))
+    print("")
