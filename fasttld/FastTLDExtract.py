@@ -124,10 +124,7 @@ class FastTLDExtract(object):
         >>> FastTLDExtract.extract('127.0.0.1', subdomain=True)
         >>> ('', '127.0.0.1', '', '127.0.0.1')
         """
-        ret_subdomain = ''
-        ret_domain = ''
-        ret_suffix = ''
-        ret_domain_name = ''
+        ret_subdomain = ret_domain = ret_suffix = ret_domain_name = ''
         if format:
             raw_url = self.format(raw_url)
 

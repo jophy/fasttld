@@ -127,19 +127,19 @@ Python 3.9.12, AMD Ryzen 7 5800X 3.8 GHz 8 cores 16 threads, 48GB RAM
 
 ### Test results
 
-| **module\case** | **jophy.com** | **www.baidu.com.cn** | **jo.noexist** | **https://maps.google.com.ua/a/long/path?query=42** | **1.1.1.1** | **https://192.168.55.1** |
+| **module\case** | `jophy.com` | `www.baidu.com.cn` | `jo.noexist` | `https://maps.google.com.ua/a/long/path?query=42` | `1.1.1.1` | `https://192.168.55.1` |
 |-----------------|---------------|----------------------|----------------|-----------------------------------------------------|-------------|--------------------------|
-| fasttld         | 6.97s         | 9.55s                | 4.71s          | 5.03s                                               | 4.51s       | 4.70s                    |
-| tldextract      | 23.07s        | 29.73s               | 25.06s         | 31.57s                                              | 33.17s      | 34.70s                   |
-| tld             | 25.69s        | 27.68s               | 21.59s         | 25.79s                                              | 20.73s      | 20.41s                   |
+| fasttld         | 7.60s         | 9.90s                | 5.28s          | 5.67s                                               | 5.06s       | 5.30s                    |
+| tldextract      | 22.96s        | 29.32s               | 25.06s         | 31.69s                                              | 33.89s      | 35.15s                   |
+| tld             | 26.75s        | 29.00s               | 23.01s         | 27.55s                                              | 22.79s      | 22.55s                   |
 
 ---
 
 Excluding subdomains (i.e. `subdomain=False`)
 
-| **module\case** | **jophy.com** | **www.baidu.com.cn** | **jo.noexist** | **https://maps.google.com.ua/a/long/path?query=42** | **1.1.1.1** | **https://192.168.55.1** |
+| **module\case** | `jophy.com` | `www.baidu.com.cn` | `jo.noexist` | `https://maps.google.com.ua/a/long/path?query=42` | `1.1.1.1` | `https://192.168.55.1`
 |-----------------|---------------|----------------------|----------------|-----------------------------------------------------|-------------|--------------------------|
-| fasttld         | 6.62s         | 7.92s                | 4.72s          | 4.90s                                               | 4.27s       | 4.50s                    |
+| fasttld         | 7.55s         | 8.98s                | 5.20s          | 5.52s                                               | 5.13s       | 5.25s                    |
 
 On average, **fasttld** is **4 to 5** times faster than the other modules. It retains its performance advantage even when parsing long URLs like `https://maps.google.com.ua/a/long/path?query=42`
 

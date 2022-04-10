@@ -49,8 +49,8 @@ test_cases = [('fasttld_with_subdomains',
 for test_case in test_cases:
     module, extractor, kwargs = test_case
     for url in cases:
-        t1 = time.time()
+        t1 = time.perf_counter()
         for i in range(1, num_iterations):
             extractor(url, **kwargs)  # type: ignore
-        print("%s on '%s' : %ss" % (module, url, time.time() - t1))
+        print("%s on '%s' : %.2fs" % (module, url, time.perf_counter() - t1))
     print("")
