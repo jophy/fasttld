@@ -22,11 +22,7 @@ IP_RE = re.compile(
 )
 
 # Characters valid in scheme names
-scheme_chars = ('abcdefghijklmnopqrstuvwxyz'
-                'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-                '0123456789'
-                '+-.')
-SCHEME_RE = re.compile(r"^([" + scheme_chars + "]+:)?//")
+SCHEME_RE = re.compile(r"^[A-Za-z0-9+-.]+://")
 
 
 def looks_like_ip(maybe_ip):
@@ -149,13 +145,12 @@ class FastTLDExtract(object):
             .rstrip(".")
         )
         # Determine if raw_url is an IP address
-        if netloc and looks_like_ip(netloc):
+        if len(netloc) != 0 and looks_like_ip(netloc):
             return ("", netloc, "", netloc)
         labels = netloc.split(".")
         labels.reverse()
         node = self.trie  # define the root node
         suffix = []
-
         for index, label in enumerate(labels):
             if node is True:
                 # This node is an end node.
