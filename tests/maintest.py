@@ -48,10 +48,18 @@ class FastTLDExtractCase(unittest.TestCase):
         todo = [
             "www.google.co.uk",
             "ditu.baidu.com.cn",
+            "global.prod.fastly.net",
+            "www.global.prod.fastly.net",
+            "map.global.prod.fastly.net",
+            "www.map.global.prod.fastly.net",
         ]
         assert_list = [
             ("www", "google", "co.uk", "google.co.uk"),
             ("ditu", "baidu", "com.cn", "baidu.com.cn"),
+            ("", "", "global.prod.fastly.net", ""),
+            ("", "www", "global.prod.fastly.net", "www.global.prod.fastly.net"),
+            ("", "map", "global.prod.fastly.net", "map.global.prod.fastly.net"),
+            ("www", "map", "global.prod.fastly.net", "map.global.prod.fastly.net"),
         ]
         asserts = map(all_suffix.extract, todo)
         for index, _a in enumerate(asserts):
@@ -82,27 +90,44 @@ class FastTLDExtractCase(unittest.TestCase):
 
     def test_not_tld(self):
         self.assertEqual(all_suffix.extract("www.abc.noexists"), ('', '', '', ''))
+        self.assertEqual(no_private_suffix.extract("www.abc.noexists"), ('', '', '', ''))
 
     def test_only_dot_tld(self):
         self.assertEqual(all_suffix.extract(".com"), ('', '', 'com', ''))
+        self.assertEqual(no_private_suffix.extract(".com"), ('', '', 'com', ''))
 
     def test_one_rule(self):
         self.assertEqual(all_suffix.extract("domain.biz"), ('', 'domain', 'biz', 'domain.biz'))
+        self.assertEqual(no_private_suffix.extract("domain.biz"), ('', 'domain', 'biz', 'domain.biz'))
 
     def test_only_one_wildcard(self):
         self.assertEqual(all_suffix.extract("mm"), ('', '', 'mm', ''))
         self.assertEqual(all_suffix.extract("c.mm"), ('', '', 'c.mm', ''))
         self.assertEqual(all_suffix.extract("b.c.mm"), ('', 'b', 'c.mm', 'b.c.mm'))
 
+        self.assertEqual(no_private_suffix.extract("mm"), ('', '', 'mm', ''))
+        self.assertEqual(no_private_suffix.extract("c.mm"), ('', '', 'c.mm', ''))
+        self.assertEqual(no_private_suffix.extract("b.c.mm"), ('', 'b', 'c.mm', 'b.c.mm'))
+
     def test_us_k12(self):
+        # k12.ak.us is a public TLD
         self.assertEqual(all_suffix.extract("ak.us"), ('', '', 'ak.us', ''))
         self.assertEqual(all_suffix.extract("test.k12.ak.us"),
                          ('', 'test', 'k12.ak.us', 'test.k12.ak.us'))
         self.assertEqual(all_suffix.extract("www.test.k12.ak.us"),
                          ('www', 'test', 'k12.ak.us', 'test.k12.ak.us'))
 
+        self.assertEqual(no_private_suffix.extract("ak.us"), ('', '', 'ak.us', ''))
+        self.assertEqual(no_private_suffix.extract("test.k12.ak.us"),
+                         ('', 'test', 'k12.ak.us', 'test.k12.ak.us'))
+        self.assertEqual(no_private_suffix.extract("www.test.k12.ak.us"),
+                         ('www', 'test', 'k12.ak.us', 'test.k12.ak.us'))
+
     def test_punycode(self):
         self.assertEqual(all_suffix.extract("xn--85x722f.com.cn"),
+                         ('', 'xn--85x722f', 'com.cn', 'xn--85x722f.com.cn'))
+
+        self.assertEqual(no_private_suffix.extract("xn--85x722f.com.cn"),
                          ('', 'xn--85x722f', 'com.cn', 'xn--85x722f.com.cn'))
 
     def test_scheme_port_path(self):
