@@ -27,9 +27,6 @@ SCHEME_RE = re.compile(r"^[A-Za-z0-9+-.]+://")
 
 def looks_like_ip(maybe_ip):
     """Does the given str look like an IP address?"""
-    if not maybe_ip[0].isdigit():
-        return False
-
     try:
         socket.inet_aton(maybe_ip)
         return True
