@@ -178,7 +178,7 @@ class FastTLDExtract(object):
         len_labels = len(labels)
         ret_suffix = ".".join(suffix)
 
-        if len_suffix < len_labels and len_suffix != 0:
+        if 0 < len_suffix < len_labels:
             ret_domain = labels[len_suffix]
             if subdomain:
                 if len_suffix + 1 < len_labels:
