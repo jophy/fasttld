@@ -61,9 +61,9 @@ class FastTLDExtractCase(unittest.TestCase):
             ("", "map", "global.prod.fastly.net", "map.global.prod.fastly.net"),
             ("www", "map", "global.prod.fastly.net", "map.global.prod.fastly.net"),
         ]
-        asserts = map(all_suffix.extract, todo)
-        for index, _a in enumerate(asserts):
-            self.assertEqual(_a, assert_list[index])
+
+        for t, a in zip(todo, assert_list):
+            self.assertEqual(all_suffix.extract(t), a)
 
     def test_wildcard(self):
         todo = [
@@ -84,9 +84,9 @@ class FastTLDExtractCase(unittest.TestCase):
             ("", "123", "abc.ck", "123.abc.ck"),
             ("foo", "123", "abc.ck", "123.abc.ck"),
         ]
-        asserts = map(all_suffix.extract, todo)
-        for index, _a in enumerate(asserts):
-            self.assertEqual(_a, assert_list[index])
+
+        for t, a in zip(todo, assert_list):
+            self.assertEqual(all_suffix.extract(t), a)
 
     def test_not_tld(self):
         self.assertEqual(all_suffix.extract("www.abc.noexists"), ('', '', '', ''))
