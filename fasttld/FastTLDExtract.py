@@ -144,37 +144,30 @@ class FastTLDExtract(object):
         labels.reverse()
         node = self.trie  # define the root node
         suffix = []
-        for index, label in enumerate(labels):
+        for label in labels:
             if node is True:
                 # This node is an end node.
                 ret_domain = label
                 break
 
             # This node has sub-nodes and maybe an end-node.
-            # eg. us -> (us, gov.us)
+            # eg. cn -> (cn, gov.cn)
             if '_END' in node:
-                if index < len(labels):
-                    # check if there is a sub node
-                    # eg. gov.us
-                    if label in node:
-                        suffix.append(label)
-                        node = node[label]
-                        continue
-                if node['_END'] is True and label in node:
-                    # check if it is an end-node
-                    # eg. us
+                # check if there is a sub node
+                # eg. gov.cn
+                if label in node:
                     suffix.append(label)
-                    break
+                    node = node[label]
+                    continue
 
             if '*' in node:
-                if index < len(labels):
-                    # check if there is a sub node
-                    # eg. www.ck
-                    if ("!%s" % label) in node:
-                        ret_domain = label
-                    else:
-                        suffix.append(label)
-                    break
+                # check if there is a sub node
+                # eg. www.ck
+                if ("!%s" % label) in node:
+                    ret_domain = label
+                else:
+                    suffix.append(label)
+                break
 
             # check a TLD in PSL
             if label in node:
