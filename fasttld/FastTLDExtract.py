@@ -98,11 +98,7 @@ class FastTLDExtract(object):
                 sp.reverse()
                 self.nested_dict(tld_trie, sp)
             else:
-                tld_trie.update({
-                    suffix: {
-                        '_END': True
-                    }
-                })
+                tld_trie[suffix] = {'_END': True}
         for key, val in tld_trie.items():
             if len(val) == 1 and '_END' in val:
                 tld_trie[key] = True
