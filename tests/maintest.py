@@ -13,7 +13,6 @@ class FastTLDExtractCase(unittest.TestCase):
         self.assertEqual(trie['cn']['com'], True)
         self.assertEqual('blogspot' in trie['uk']['co'], True)
         self.assertEqual('*' in trie['uk'], False)
-        self.assertEqual(trie['top'], True)
         self.assertEqual('_END' in trie['cn'], True)
         self.assertEqual(trie['ck']['*'], True)
         self.assertEqual(trie['ck']['!www'], True)

@@ -142,7 +142,7 @@ class FastTLDExtract(object):
         node = self.trie  # define the root node
         suffix = []
         for label in labels:
-            if node is True:
+            if node is True:  # or alternatively if type(node) is not dict:
                 # This node is an end node.
                 ret_domain = label
                 break
