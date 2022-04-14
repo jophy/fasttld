@@ -49,35 +49,20 @@ class FastTLDExtract(object):
     def nested_dict(self, dic, keys):
         """
         The idea of this function is based on https://stackoverflow.com/questions/13687924
-
-        Given a dictionary `dic` and a list of keys `keys`, create a nested path of keys
-        and set the value to `True`. The original dictionary `dic` is mutated.
-
-        Example
-
-        >>> dic = {'foo': 'bar'} ; keys = ['a', 'b', 'c'] ; nested_dict(dic, keys) ;
-        >>> dic
-
-            {'foo': 'bar', 'a': {'b': {'c': True}}}
-        ===
-
         :param dic:
         :param keys:
         :return:
         """
-        keys_except_last_key, second_last_key, last_key = itemgetter(slice(0, -1), -2, -1)(keys)
-        for key in keys_except_last_key:
+        for key in keys[:-1]:
             dic_bk = dic
-            if key not in dic:
-                dic[key] = {}
-            dic = dic[key]
+            dic = dic.setdefault(key, {})
             if isinstance(dic, bool):
                 dic = dic_bk
-                dic[second_last_key] = {
+                dic[keys[-2]] = {
                     '_END': True,
-                    last_key: True
+                    keys[-1]: True
                 }
-        dic[last_key] = True
+        dic[keys[-1]] = True
 
     def _trie_construct(self, exclude_private_suffix, file_path=''):
         """
