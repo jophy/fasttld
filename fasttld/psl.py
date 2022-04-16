@@ -35,6 +35,7 @@ def getPublicSuffixList(file_path):
     except Exception:
         fd = open(file_path, 'r')
     with fd:
+        suffix = punycode_suffix = ""
         for line in fd:
             line = line.strip()
             if "// ===BEGIN PRIVATE DOMAINS===" == line:
@@ -43,16 +44,19 @@ def getPublicSuffixList(file_path):
                 continue
             if line.startswith("//"):
                 continue
-            try:
-                suffix = line.decode('utf-8').encode('idna')
-            except Exception:
-                suffix = line.encode('idna')  # py3.x
-                suffix = str(suffix, 'utf-8')  # py3.x
+            suffix = line
+            punycode_suffix = suffix.encode('idna').decode('utf-8')
             if pri_flag:
                 PrivateSuffixList.append(suffix)
+                if punycode_suffix != suffix and punycode_suffix != "":
+                    PrivateSuffixList.append(punycode_suffix)
             else:
                 PublicSuffixList.append(suffix)
+                if punycode_suffix != suffix and punycode_suffix != "":
+                    PublicSuffixList.append(punycode_suffix)
             AllSuffixList.append(suffix)
+            if punycode_suffix != suffix and punycode_suffix != "":
+                AllSuffixList.append(punycode_suffix)
     return PublicSuffixList, PrivateSuffixList, AllSuffixList
 
 

@@ -22,6 +22,11 @@ class FastTLDExtractCase(unittest.TestCase):
         self.assertEqual(trie['ee']['com']['blogspot'], True)
         self.assertEqual(trie['com']['0emm']['*'], True)
 
+    def test_idn_suffix_trie(self):
+        trie = all_suffix.trie
+        self.assertEqual(trie['香港']['公司'], True)
+        self.assertEqual(trie['新加坡'], True)
+
     def test_no_private_domain_trie(self):
         trie = no_private_suffix.trie
         self.assertEqual(trie['cn']['com'], True)
@@ -97,7 +102,8 @@ class FastTLDExtractCase(unittest.TestCase):
 
     def test_one_rule(self):
         self.assertEqual(all_suffix.extract("domain.biz"), ('', 'domain', 'biz', 'domain.biz'))
-        self.assertEqual(no_private_suffix.extract("domain.biz"), ('', 'domain', 'biz', 'domain.biz'))
+        self.assertEqual(no_private_suffix.extract("domain.biz"),
+                         ('', 'domain', 'biz', 'domain.biz'))
 
     def test_only_one_wildcard(self):
         self.assertEqual(all_suffix.extract("mm"), ('', '', 'mm', ''))
@@ -121,6 +127,13 @@ class FastTLDExtractCase(unittest.TestCase):
                          ('', 'test', 'k12.ak.us', 'test.k12.ak.us'))
         self.assertEqual(no_private_suffix.extract("www.test.k12.ak.us"),
                          ('www', 'test', 'k12.ak.us', 'test.k12.ak.us'))
+
+    def test_idn(self):
+        self.assertEqual(all_suffix.extract("食狮.com.cn"),
+                         ('', '食狮', 'com.cn', '食狮.com.cn'))
+
+        self.assertEqual(no_private_suffix.extract("食狮.com.cn"),
+                         ('', '食狮', 'com.cn', '食狮.com.cn'))
 
     def test_punycode(self):
         self.assertEqual(all_suffix.extract("xn--85x722f.com.cn"),
