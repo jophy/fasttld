@@ -10,7 +10,6 @@ Copyright (c) 2017-2018 Jophy
 """
 import re
 import socket
-from operator import itemgetter
 
 import idna
 
