@@ -55,7 +55,9 @@ class FastTLDExtract(object):
         """
         for key in keys[:-1]:
             dic_bk = dic
-            dic = dic.setdefault(key, {})
+            if key not in dic:
+                dic[key] = {}
+            dic = dic[key]
             if isinstance(dic, bool):
                 dic = dic_bk
                 dic[keys[-2]] = {
