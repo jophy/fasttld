@@ -45,7 +45,10 @@ def getPublicSuffixList(file_path):
             if line.startswith("//"):
                 continue
             suffix = line
-            punycode_suffix = suffix.encode('idna').decode('utf-8')
+            try:
+                punycode_suffix = line.encode('idna').decode('utf-8')  # python3
+            except Exception:
+                punycode_suffix = line.decode('utf-8').encode('idna')  # python2
             if pri_flag:
                 PrivateSuffixList.append(suffix)
                 if punycode_suffix != suffix and punycode_suffix != "":
