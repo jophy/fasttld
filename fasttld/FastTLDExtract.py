@@ -39,7 +39,7 @@ def looks_like_ip(maybe_ip):
 
 
 class FastTLDExtract(object):
-    def __init__(self, exclude_private_suffix=False, file_path=''):
+    def __init__(self, exclude_private_suffix=False, file_path=""):
         self.trie = self._trie_construct(exclude_private_suffix, file_path)
 
     def update(self, *args, **kwargs):
@@ -52,20 +52,20 @@ class FastTLDExtract(object):
         :param keys:
         :return:
         """
+        end = False
         for key in keys[:-1]:
             dic_bk = dic
             if key not in dic:
                 dic[key] = {}
             dic = dic[key]
             if isinstance(dic, bool):
+                end = True
                 dic = dic_bk
-                dic[keys[-2]] = {
-                    '_END': True,
-                    keys[-1]: True
-                }
-        dic[keys[-1]] = True
+                dic[keys[-2]] = {"_END": True, keys[-1]: True}
+        if not end:
+            dic[keys[-1]] = True
 
-    def _trie_construct(self, exclude_private_suffix, file_path=''):
+    def _trie_construct(self, exclude_private_suffix, file_path=""):
         """
         This function for building a trie structure based on Mozilla Public Suffix List.
         In order to construct this, all suffixes sorted in a reverse order.
@@ -76,14 +76,14 @@ class FastTLDExtract(object):
         PublicSuffixList, PrivateSuffixList, AllSuffixList = getPublicSuffixList(file_path)
         SuffixList = PublicSuffixList if exclude_private_suffix else AllSuffixList
         for suffix in SuffixList:
-            if '.' in suffix:
-                sp = suffix.split('.')
+            if "." in suffix:
+                sp = suffix.split(".")
                 sp.reverse()
                 self.nested_dict(tld_trie, sp)
             else:
-                tld_trie[suffix] = {'_END': True}
+                tld_trie[suffix] = {"_END": True}
         for key, val in tld_trie.items():
-            if len(val) == 1 and '_END' in val:
+            if len(val) == 1 and "_END" in val:
                 tld_trie[key] = True
         return tld_trie
 
@@ -103,7 +103,7 @@ class FastTLDExtract(object):
         >>> FastTLDExtract.extract('127.0.0.1', subdomain=True)
         >>> ('', '127.0.0.1', '', '127.0.0.1')
         """
-        ret_subdomain = ret_domain = ret_suffix = ret_domain_name = ''
+        ret_subdomain = ret_domain = ret_suffix = ret_domain_name = ""
         if format:
             raw_url = self.format(raw_url)
 
@@ -135,7 +135,7 @@ class FastTLDExtract(object):
 
             # This node has sub-nodes and maybe an end-node.
             # eg. cn -> (cn, gov.cn)
-            if '_END' in node:
+            if "_END" in node:
                 # check if there is a sub node
                 # eg. gov.cn
                 if label in node:
@@ -143,7 +143,7 @@ class FastTLDExtract(object):
                     node = node[label]
                     continue
 
-            if '*' in node:
+            if "*" in node:
                 # check if there is a sub node
                 # eg. www.ck
                 if ("!%s" % label) in node:
@@ -168,15 +168,11 @@ class FastTLDExtract(object):
             ret_domain = labels[len_suffix]
             if subdomain:
                 if len_suffix + 1 < len_labels:
-                    ret_subdomain = netloc[:-(len(ret_domain) + len(ret_suffix) + 2)]
+                    ret_subdomain = netloc[: -(len(ret_domain) + len(ret_suffix) + 2)]
         if ret_domain and ret_suffix:
             ret_domain_name = "%s.%s" % (ret_domain, ret_suffix)
 
-        return (ret_subdomain,
-                ret_domain,
-                ret_suffix,
-                ret_domain_name
-                )
+        return (ret_subdomain, ret_domain, ret_suffix, ret_domain_name)
 
     def format(self, raw_url):
         """
