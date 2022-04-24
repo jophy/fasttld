@@ -38,6 +38,14 @@ def looks_like_ip(maybe_ip):
     return False
 
 
+def check_numeric(maybe_numeric):
+    try:
+        int(maybe_numeric)
+    except ValueError:
+        return False
+    return True
+
+
 class FastTLDExtract(object):
     def __init__(self, exclude_private_suffix=False, file_path=""):
         self.trie = self._trie_construct(exclude_private_suffix, file_path)
@@ -103,28 +111,66 @@ class FastTLDExtract(object):
         >>> FastTLDExtract.extract('127.0.0.1', subdomain=True)
         >>> ('', '127.0.0.1', '', '127.0.0.1')
         """
-        ret_subdomain = ret_domain = ret_suffix = ret_domain_name = ""
+        ret_scheme = ret_userinfo = ret_subdomain = ret_domain = ""
+        ret_suffix = ret_port = ret_path = ret_domain_name = ""
         if format:
             raw_url = self.format(raw_url)
 
         # Borrowed from tldextract library (https://github.com/john-kurkowski/tldextract)
         # Use regex to strip raw_url of scheme subcomponent and anything after host subcomponent
         # Reference: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#Syntax
-        netloc = (
-            SCHEME_RE.sub("", raw_url)
-            .partition("/")[0]
-            .partition("?")[0]
-            .partition("#")[0]
-            .split("@")[-1]
-            .partition(":")[0]
-            .strip()
-            .rstrip(".")
-        )
+
+        netloc_with_scheme = raw_url.strip(". \n\t\r\uFEFF")  # \u200b\u200c\u200d
+        netloc = SCHEME_RE.sub("", netloc_with_scheme)
+
+        ret_scheme = netloc_with_scheme[:len(netloc_with_scheme)-len(netloc)]
+
+        after_host = ""
+
+        # Extract URL userinfo
+        try:
+            at_idx = netloc.index("@")
+        except ValueError:
+            pass
+        else:
+            ret_userinfo = netloc[:at_idx]
+            netloc = netloc[at_idx+1:]
+
+        # Separate URL host from subcomponents thereafter
+        try:
+            host_end_index = next(i for i, c in enumerate(netloc) if c in {':', '/', '?', '&', '#'})
+        except StopIteration:
+            pass
+        else:
+            after_host = netloc[host_end_index:]
+            netloc = netloc[:host_end_index]
+
+        # extract port and "Path" if any
+        if len(after_host):
+            try:
+                path_start_index = after_host.index("/")
+            except ValueError:
+                path_start_index = -1
+            invalid_port = False
+            if after_host[0] == ':':
+                if path_start_index == -1:
+                    maybe_port = after_host[1:]
+                else:
+                    maybe_port = after_host[1:path_start_index]
+                if not(check_numeric(maybe_port) and 0 <= int(maybe_port) <= 65535):
+                    invalid_port = True
+                else:
+                    ret_port = maybe_port
+            if not invalid_port and path_start_index != -1 and path_start_index != len(after_host):
+                ret_path = after_host[path_start_index+1:]
+
         # Determine if raw_url is an IP address
         if len(netloc) != 0 and looks_like_ip(netloc):
             return ("", netloc, "", netloc)
+
         labels = netloc.split(".")
         labels.reverse()
+
         node = self.trie  # define the root node
         suffix = []
         for label in labels:
@@ -172,7 +218,8 @@ class FastTLDExtract(object):
         if ret_domain and ret_suffix:
             ret_domain_name = "%s.%s" % (ret_domain, ret_suffix)
 
-        return (ret_subdomain, ret_domain, ret_suffix, ret_domain_name)
+        return (ret_scheme, ret_userinfo, ret_subdomain, ret_domain,
+                ret_suffix, ret_port, ret_path, ret_domain_name)
 
     def format(self, raw_url):
         """

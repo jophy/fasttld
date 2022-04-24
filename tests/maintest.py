@@ -39,21 +39,21 @@ class FastTLDExtractCase(unittest.TestCase):
     def test_no_private_suffix_extract(self):
         self.assertEqual(
             no_private_suffix.extract("www.myownblog.blogspot.ca"),
-            ("www.myownblog", "blogspot", "ca", "blogspot.ca"),
+            ("", "", "www.myownblog", "blogspot", "ca", "", "", "blogspot.ca"),
         )
         self.assertEqual(
             no_private_suffix.extract("192.168.1.1.no-ip.co.uk"),
-            ("192.168.1.1", "no-ip", "co.uk", "no-ip.co.uk"),
+            ("", "", "192.168.1.1", "no-ip", "co.uk", "", "", "no-ip.co.uk"),
         )
 
     def test_private_suffix_extract(self):
         self.assertEqual(
             all_suffix.extract("www.myownblog.blogspot.ca"),
-            ("www", "myownblog", "blogspot.ca", "myownblog.blogspot.ca"),
+            ("", "", "www", "myownblog", "blogspot.ca", "", "", "myownblog.blogspot.ca"),
         )
         self.assertEqual(
             all_suffix.extract("192.168.1.1.no-ip.co.uk"),
-            ("192.168.1", "1", "no-ip.co.uk", "1.no-ip.co.uk"),
+            ("", "", "192.168.1", "1", "no-ip.co.uk", "", "", "1.no-ip.co.uk"),
         )
 
     def test_all_extract(self):
@@ -66,12 +66,12 @@ class FastTLDExtractCase(unittest.TestCase):
             "www.map.global.prod.fastly.net",
         ]
         assert_list = [
-            ("www", "google", "co.uk", "google.co.uk"),
-            ("ditu", "baidu", "com.cn", "baidu.com.cn"),
-            ("", "", "global.prod.fastly.net", ""),
-            ("", "www", "global.prod.fastly.net", "www.global.prod.fastly.net"),
-            ("", "map", "global.prod.fastly.net", "map.global.prod.fastly.net"),
-            ("www", "map", "global.prod.fastly.net", "map.global.prod.fastly.net"),
+            ("", "", "www", "google", "co.uk", "", "", "google.co.uk"),
+            ("", "", "ditu", "baidu", "com.cn", "", "", "baidu.com.cn"),
+            ("", "", "", "", "global.prod.fastly.net", "", "", ""),
+            ("", "", "", "www", "global.prod.fastly.net", "", "", "www.global.prod.fastly.net"),
+            ("", "", "", "map", "global.prod.fastly.net", "", "", "map.global.prod.fastly.net"),
+            ("", "", "www", "map", "global.prod.fastly.net", "", "", "map.global.prod.fastly.net"),
         ]
 
         for t, a in zip(todo, assert_list):
@@ -88,81 +88,97 @@ class FastTLDExtractCase(unittest.TestCase):
             "foo.123.abc.ck",
         ]
         assert_list = [
-            ("", "", "ck", ""),
-            ("", "www", "ck", "www.ck"),
-            ("news", "www", "ck", "www.ck"),
-            ("big.news", "www", "ck", "www.ck"),
-            ("", "", "abc.ck", ""),
-            ("", "123", "abc.ck", "123.abc.ck"),
-            ("foo", "123", "abc.ck", "123.abc.ck"),
+            ("", "", "", "", "ck", "", "", ""),
+            ("", "", "", "www", "ck", "", "", "www.ck"),
+            ("", "", "news", "www", "ck", "", "", "www.ck"),
+            ("", "", "big.news", "www", "ck", "", "", "www.ck"),
+            ("", "", "", "", "abc.ck", "", "", ""),
+            ("", "", "", "123", "abc.ck", "", "", "123.abc.ck"),
+            ("", "", "foo", "123", "abc.ck", "", "", "123.abc.ck"),
         ]
 
         for t, a in zip(todo, assert_list):
             self.assertEqual(all_suffix.extract(t), a)
 
     def test_not_tld(self):
-        self.assertEqual(all_suffix.extract("www.abc.noexists"), ("", "", "", ""))
-        self.assertEqual(no_private_suffix.extract("www.abc.noexists"), ("", "", "", ""))
+        self.assertEqual(all_suffix.extract("www.abc.noexists"), ("", "", "", "", "", "", "", ""))
+        self.assertEqual(no_private_suffix.extract("www.abc.noexists"),
+                         ("", "", "", "", "", "", "", ""))
 
     def test_only_dot_tld(self):
-        self.assertEqual(all_suffix.extract(".com"), ("", "", "com", ""))
-        self.assertEqual(no_private_suffix.extract(".com"), ("", "", "com", ""))
+        self.assertEqual(all_suffix.extract(".com"), ("", "", "", "", "com", "", "", ""))
+        self.assertEqual(no_private_suffix.extract(".com"), ("", "", "", "", "com", "", "", ""))
 
     def test_one_rule(self):
-        self.assertEqual(all_suffix.extract("domain.biz"), ("", "domain", "biz", "domain.biz"))
+        self.assertEqual(all_suffix.extract("domain.biz"),
+                         ("", "", "", "domain", "biz", "", "", "domain.biz"))
         self.assertEqual(
-            no_private_suffix.extract("domain.biz"), ("", "domain", "biz", "domain.biz")
+            no_private_suffix.extract("domain.biz"),
+            ("", "", "", "domain", "biz", "", "", "domain.biz")
         )
 
     def test_only_one_wildcard(self):
-        self.assertEqual(all_suffix.extract("mm"), ("", "", "mm", ""))
-        self.assertEqual(all_suffix.extract("c.mm"), ("", "", "c.mm", ""))
-        self.assertEqual(all_suffix.extract("b.c.mm"), ("", "b", "c.mm", "b.c.mm"))
+        self.assertEqual(all_suffix.extract("mm"), ("", "", "", "", "mm", "", "", ""))
+        self.assertEqual(all_suffix.extract("c.mm"), ("", "", "", "", "c.mm", "", "", ""))
+        self.assertEqual(all_suffix.extract("b.c.mm"), ("", "", "", "b", "c.mm", "", "", "b.c.mm"))
 
-        self.assertEqual(no_private_suffix.extract("mm"), ("", "", "mm", ""))
-        self.assertEqual(no_private_suffix.extract("c.mm"), ("", "", "c.mm", ""))
-        self.assertEqual(no_private_suffix.extract("b.c.mm"), ("", "b", "c.mm", "b.c.mm"))
+        self.assertEqual(no_private_suffix.extract("mm"), ("", "", "", "", "mm", "", "", ""))
+        self.assertEqual(no_private_suffix.extract("c.mm"), ("", "", "", "", "c.mm", "", "", ""))
+        self.assertEqual(no_private_suffix.extract("b.c.mm"),
+                         ("", "", "", "b", "c.mm", "", "", "b.c.mm"))
 
     def test_us_k12(self):
         # k12.ak.us is a public TLD
-        self.assertEqual(all_suffix.extract("ak.us"), ("", "", "ak.us", ""))
+        self.assertEqual(all_suffix.extract("ak.us"), ("", "", "", "", "ak.us", "", "", ""))
         self.assertEqual(
-            all_suffix.extract("test.k12.ak.us"), ("", "test", "k12.ak.us", "test.k12.ak.us")
+            all_suffix.extract("test.k12.ak.us"),
+            ("", "", "", "test", "k12.ak.us", "", "", "test.k12.ak.us")
         )
         self.assertEqual(
-            all_suffix.extract("www.test.k12.ak.us"), ("www", "test", "k12.ak.us", "test.k12.ak.us")
+            all_suffix.extract("www.test.k12.ak.us"),
+            ("", "", "www", "test", "k12.ak.us", "", "", "test.k12.ak.us")
         )
 
-        self.assertEqual(no_private_suffix.extract("ak.us"), ("", "", "ak.us", ""))
+        self.assertEqual(no_private_suffix.extract("ak.us"),
+                         ("", "", "", "", "ak.us", "", "", ""))
         self.assertEqual(
-            no_private_suffix.extract("test.k12.ak.us"), ("", "test", "k12.ak.us", "test.k12.ak.us")
+            no_private_suffix.extract("test.k12.ak.us"),
+                                     ("", "", "", "test", "k12.ak.us", "", "", "test.k12.ak.us")
         )
         self.assertEqual(
             no_private_suffix.extract("www.test.k12.ak.us"),
-            ("www", "test", "k12.ak.us", "test.k12.ak.us"),
+            ("", "", "www", "test", "k12.ak.us", "", "", "test.k12.ak.us"),
         )
 
     def test_idn(self):
-        self.assertEqual(all_suffix.extract("食狮.com.cn"), ("", "食狮", "com.cn", "食狮.com.cn"))
+        self.assertEqual(all_suffix.extract("食狮.com.cn"),
+                         ("", "", "", "食狮", "com.cn", "", "", "食狮.com.cn"))
 
-        self.assertEqual(no_private_suffix.extract("食狮.com.cn"), ("", "食狮", "com.cn", "食狮.com.cn"))
+        self.assertEqual(no_private_suffix.extract("食狮.com.cn"),
+                         ("", "", "", "食狮", "com.cn", "", "", "食狮.com.cn"))
 
     def test_punycode(self):
         self.assertEqual(
             all_suffix.extract("xn--85x722f.com.cn"),
-            ("", "xn--85x722f", "com.cn", "xn--85x722f.com.cn"),
+            ("", "", "", "xn--85x722f", "com.cn", "", "", "xn--85x722f.com.cn"),
         )
 
         self.assertEqual(
             no_private_suffix.extract("xn--85x722f.com.cn"),
-            ("", "xn--85x722f", "com.cn", "xn--85x722f.com.cn"),
+            ("", "", "", "xn--85x722f", "com.cn", "", "", "xn--85x722f.com.cn"),
         )
 
     def test_scheme_port_path(self):
         # no_private_suffix
         no_private_suffix_asserts = [
-            ("", "blogspot", "com", "blogspot.com"),
-            ("google", "blogspot", "com", "blogspot.com"),
+            ("https://", "", "", "blogspot", "com", "", "", "blogspot.com"),
+            ("https://", "", "google", "blogspot", "com", "", "", "blogspot.com"),
+            ("https://", "", "google", "blogspot", "com", "8080", "", "blogspot.com"),
+            ("ftp://", "", "google", "blogspot", "com", "8080",
+             "a/long/path?query=42things", "blogspot.com"),
+            ("ftp://", "", "", "blogspot", "com", "8080",
+             "a/long/path?query=42things", "blogspot.com"),
+            ("https://", "", "", "blogspot", "com", "8080", "", "blogspot.com"),
         ]
         self.assertEqual(
             no_private_suffix.extract("https://blogspot.com"), no_private_suffix_asserts[0]
@@ -181,30 +197,37 @@ class FastTLDExtractCase(unittest.TestCase):
         )
         self.assertEqual(
             no_private_suffix.extract("https://google.blogspot.com:8080"),
-            no_private_suffix_asserts[1],
+            no_private_suffix_asserts[2],
         )
         self.assertEqual(
             no_private_suffix.extract("https://google.blogspot.com:8080", subdomain=False),
-            no_private_suffix_asserts[0],
+            no_private_suffix_asserts[5],
         )
         self.assertEqual(
             no_private_suffix.extract(
-                "ftp://google.blogspot.com:8080" "/a/long/path?query=42things"
+                "ftp://google.blogspot.com:8080/a/long/path?query=42things"
             ),
-            no_private_suffix_asserts[1],
+            no_private_suffix_asserts[3],
         )
         self.assertEqual(
             no_private_suffix.extract(
-                "ftp://google.blogspot.com:8080" "/a/long/path?query=42things", subdomain=False
+                "ftp://google.blogspot.com:8080/a/long/path?query=42things", subdomain=False
             ),
-            no_private_suffix_asserts[0],
+            no_private_suffix_asserts[4],
         )
 
         # all_suffix
         all_suffix_asserts = [
-            ("abc", "google", "blogspot.com", "google.blogspot.com"),
-            ("", "google", "blogspot.com", "google.blogspot.com"),
-            ("abc", "google", "blogspot.com", "google.blogspot.com"),
+            ("https://", "", "abc", "google", "blogspot.com", "", "", "google.blogspot.com"),
+            ("https://", "", "", "google", "blogspot.com", "", "", "google.blogspot.com"),
+            ("ftp://", "", "abc", "google", "blogspot.com", "8080",
+             "a/long/path?query=42things", "google.blogspot.com"),
+            ("ftp://", "", "", "google", "blogspot.com", "8080",
+             "a/long/path?query=42things", "google.blogspot.com"),
+            ("https://", "", "abc", "google", "blogspot.com", "8080",
+             "", "google.blogspot.com"),
+            ("https://", "", "", "google", "blogspot.com", "8080",
+             "", "google.blogspot.com"),
         ]
         self.assertEqual(
             all_suffix.extract("https://abc.google.blogspot.com"), all_suffix_asserts[0]
@@ -215,18 +238,18 @@ class FastTLDExtractCase(unittest.TestCase):
         )
 
         self.assertEqual(
-            all_suffix.extract("https://abc.google.blogspot.com"), all_suffix_asserts[2]
+            all_suffix.extract("https://abc.google.blogspot.com"), all_suffix_asserts[0]
         )
         self.assertEqual(
             all_suffix.extract("https://abc.google.blogspot.com", subdomain=False),
             all_suffix_asserts[1],
         )
         self.assertEqual(
-            all_suffix.extract("https://abc.google.blogspot.com:8080"), all_suffix_asserts[2]
+            all_suffix.extract("https://abc.google.blogspot.com:8080"), all_suffix_asserts[4]
         )
         self.assertEqual(
             all_suffix.extract("https://abc.google.blogspot.com:8080", subdomain=False),
-            all_suffix_asserts[1],
+            all_suffix_asserts[5],
         )
         self.assertEqual(
             all_suffix.extract("ftp://abc.google.blogspot.com:8080" "/a/long/path?query=42things"),
@@ -236,7 +259,7 @@ class FastTLDExtractCase(unittest.TestCase):
             all_suffix.extract(
                 "ftp://abc.google.blogspot.com:8080" "/a/long/path?query=42things", subdomain=False
             ),
-            all_suffix_asserts[1],
+            all_suffix_asserts[3],
         )
 
     def test_nested_dict(self):
