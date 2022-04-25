@@ -41,25 +41,9 @@ python setup.py install
 >>> from fasttld import FastTLDExtract
 >>> t = FastTLDExtract()
 >>> res = t.extract("https://some-user@a.long.subdomain.ox.ac.uk:5000/a/b/c/d/e/f/g/h/i?id=42")
->>> res
-('https://', 'some-user', 'a.long.subdomain', 'ox', 'ac.uk', '5000', 'a/b/c/d/e/f/g/h/i?id=42', 'ox.ac.uk')
 >>> scheme, userinfo, subdomain, domain, suffix, port, path, domain_name = res
->>> scheme
-'https://'
->>> userinfo
-'some-user'
->>> subdomain
-'a.long.subdomain'
->>> domain
-'ox'
->>> suffix
-'ac.uk'
->>> port
-'5000'
->>> path
-'a/b/c/d/e/f/g/h/i?id=42'
->>> domain_name
-'ox.ac.uk'
+>>> scheme, userinfo, subdomain, domain, suffix, port, path, domain_name
+('https://', 'some-user', 'a.long.subdomain', 'ox', 'ac.uk', '5000', 'a/b/c/d/e/f/g/h/i?id=42', 'ox.ac.uk')
 ```
 
 extract() returns a tuple `(scheme, userinfo, subdomain, domain, suffix, port, path, domain_name)` .
