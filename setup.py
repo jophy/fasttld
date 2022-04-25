@@ -3,7 +3,7 @@ import sys
 
 from setuptools import setup
 
-version = 'v0.2.2'
+version = 'v0.3.0'
 
 
 def test_suite():

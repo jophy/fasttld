@@ -40,21 +40,29 @@ python setup.py install
 ```python
 >>> from fasttld import FastTLDExtract
 >>> t = FastTLDExtract()
->>> res = t.extract("www.google.com")
+>>> res = t.extract("https://some-user@a.long.subdomain.ox.ac.uk:5000/a/b/c/d/e/f/g/h/i?id=42")
 >>> res
-('www', 'google', 'com', 'google.com')
->>> subdomain, domain, suffix, domain_name = res
+('https://', 'some-user', 'a.long.subdomain', 'ox', 'ac.uk', '5000', 'a/b/c/d/e/f/g/h/i?id=42', 'ox.ac.uk')
+>>> scheme, userinfo, subdomain, domain, suffix, port, path, domain_name = res
+>>> scheme
+'https://'
+>>> userinfo
+'some-user'
 >>> subdomain
-'www'
+'a.long.subdomain'
 >>> domain
-'google'
+'ox'
 >>> suffix
-'com'
+'ac.uk'
+>>> port
+'5000'
+>>> path
+'a/b/c/d/e/f/g/h/i?id=42'
 >>> domain_name
-'google.com'
+'ox.ac.uk'
 ```
 
-extract() returns a tuple `(subdomain, domain, suffix, domain_name)` .
+extract() returns a tuple `(scheme, userinfo, subdomain, domain, suffix, port, path, domain_name)` .
 
 ## Update the Mozilla Public Suffix List local copy
 
@@ -100,9 +108,9 @@ By default, **fasttld** treats private domains as TLDs (i.e. `exclude_private_su
 ```python
 >>> from fasttld import FastTLDExtract
 >>> FastTLDExtract(exclude_private_suffix=False).extract('news.blogspot.co.uk')
->>> ('', 'news', 'blogspot.co.uk', 'news.blogspot.co.uk') # blogspot.co.uk is treated as a TLD
+>>> ('', '', '', 'news', 'blogspot.co.uk', '', '', 'news.blogspot.co.uk') # blogspot.co.uk is treated as a TLD
 >>> FastTLDExtract().extract('news.blogspot.co.uk')  # this is the default behaviour
->>> ('', 'news', 'blogspot.co.uk', 'news.blogspot.co.uk') # same output as above
+>>> ('', '', '', 'news', 'blogspot.co.uk', '', '', 'news.blogspot.co.uk') # same output as above
 ```
 
 You can instruct **fasttld** to exclude private domains by setting `exclude_private_suffix=True`
@@ -110,7 +118,7 @@ You can instruct **fasttld** to exclude private domains by setting `exclude_priv
 ```python
 >>> from fasttld import FastTLDExtract
 >>> FastTLDExtract(exclude_private_suffix=True).extract('news.blogspot.co.uk') # set exclude_private_suffix=True
->>> ('news', 'blogspot', 'co.uk', 'blogspot.co.uk') # notice that co.uk is now recognised as the TLD instead of blogspot.co.uk
+>>> ('', '', 'news', 'blogspot', 'co.uk', '', '', 'blogspot.co.uk') # notice that co.uk is now recognised as the TLD instead of blogspot.co.uk
 ```
 
 ## Speed Comparison
