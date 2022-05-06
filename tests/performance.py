@@ -2,96 +2,55 @@
 # -*- coding: utf-8 -*-
 
 """
-This file is a performance comparision.
-@author: Jophy
+Performance comparison with similar modules
+@author: Jophy and Wu Tingfeng
 @file: performance.py
-@time: 17/6/5 21:26
 
-Copyright (c) 2017 Jophy
+Copyright (c) 2022 Wu Tingfeng
+Copyright (c) 2017-2018 Jophy
 """
 
+import sys
 import time
 
+import tldextract
 from fasttld import FastTLDExtract
 from tld import get_tld
-import tldextract
 
-case1 = 'jophy.com'
-case2 = 'www.baidu.com.cn'
-case3 = 'jo.noexist'
+cases = [
+         'jophy.com',
+         'www.baidu.com.cn',
+         'jo.noexist',
+         'https://maps.google.com.ua/a/long/path?query=42',
+         '1.1.1.1', 'https://192.168.1.1'
+        ]
 
-try:
-    range = xrange()
-except:
-    pass
+if sys.version_info.major == 2:
+    range = xrange  # type: ignore
 
-# fasttld start
-t1 = time.time()
-t = FastTLDExtract(exclude_private_suffix=False)
-for i in range(1, 1000000):
-    t.extract(case1, subdomain=True)
-print("fasttld in case1: %ss" % (time.time() - t1))
+num_iterations = 10000000
 
-t1 = time.time()
-t = FastTLDExtract(exclude_private_suffix=False)
-for i in range(1, 1000000):
-    t.extract(case2, subdomain=True)
-print("fasttld in case2: %ss" % (time.time() - t1))
+t = FastTLDExtract(exclude_private_suffix=True)
 
-t1 = time.time()
-t = FastTLDExtract(exclude_private_suffix=False)
-for i in range(1, 1000000):
-    t.extract(case3, subdomain=True)
-print("fasttld in case3: %ss\n" % (time.time() - t1))
+test_cases = [('fasttld_with_subdomains',
+              t.extract,
+              {'subdomain': True}),
+              ('tldextract',
+               tldextract.extract,
+              {}),
+              ('tld',
+              get_tld,
+              {'fix_protocol': True, 'fail_silently': True}),
+              ('fasttld_without_subdomains',
+               t.extract,
+              {'subdomain': False})
+              ]
 
-# fasttld（subdomain=False） start
-t1 = time.time()
-t = FastTLDExtract(exclude_private_suffix=False)
-for i in range(1, 1000000):
-    t.extract(case1, subdomain=False)
-print("fasttld in case1: %ss" % (time.time() - t1))
-
-t1 = time.time()
-t = FastTLDExtract(exclude_private_suffix=False)
-for i in range(1, 1000000):
-    t.extract(case2, subdomain=False)
-print("fasttld in case2: %ss" % (time.time() - t1))
-
-t1 = time.time()
-t = FastTLDExtract(exclude_private_suffix=False)
-for i in range(1, 1000000):
-    t.extract(case3, subdomain=False)
-print("fasttld in case3: %ss\n" % (time.time() - t1))
-
-
-# tldextract start
-t1 = time.time()
-for i in range(1, 1000000):
-    tldextract.extract(case1)
-print("tldextract in case1: %ss" % (time.time() - t1))
-
-t1 = time.time()
-for i in range(1, 1000000):
-    tldextract.extract(case2)
-print("tldextract in case2: %ss" % (time.time() - t1))
-
-t1 = time.time()
-for i in range(1, 1000000):
-    tldextract.extract(case3)
-print("tldextract in case3: %ss\n" % (time.time() - t1))
-
-# tld start
-t1 = time.time()
-for i in range(1, 1000000):
-    get_tld(case1, fix_protocol=True)
-print("tld in case1: %ss" % (time.time() - t1))
-
-t1 = time.time()
-for i in range(1, 1000000):
-    get_tld(case1, fix_protocol=True)
-print("tld in case2: %ss" % (time.time() - t1))
-
-t1 = time.time()
-for i in range(1, 1000000):
-    get_tld(case1, fix_protocol=True)
-print("tld in case3: %ss\n" % (time.time() - t1))
+for test_case in test_cases:
+    module, extractor, kwargs = test_case
+    for url in cases:
+        t1 = time.perf_counter()
+        for i in range(1, num_iterations):
+            extractor(url, **kwargs)  # type: ignore
+        print("%s on '%s' : %.2fs" % (module, url, time.perf_counter() - t1))
+    print("")

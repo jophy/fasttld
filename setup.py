@@ -1,39 +1,41 @@
+import subprocess
+import sys
+
 from setuptools import setup
 
-import sys
-import os
-
-version = '0.2.1'
+version = 'v0.3.0'
 
 
 def test_suite():
     try:
         import unittest2
         unittest = unittest2
-    except:
+    except Exception:
         import unittest
 
     test_loader = unittest.TestLoader()
     test_suite = test_loader.discover('tests', pattern='maintest.py')
     return test_suite
 
+
 if sys.argv[-1] == 'publish':
-    os.system("python setup.py sdist upload")
-    os.system("git tag v%s" % (version))
-    os.system("git push --tags")
+    subprocess.call(["python", "setup.py", "sdist", "upload"])
+    subprocess.call(["git", "tag", version])
+    subprocess.call(["git", "push", "--tags"])
     print("All Done!")
     sys.exit()
 
 
 setup(
     name='fasttld',
-    version=version,
+    version=version[1:],
     packages=['fasttld'],
     url='https://github.com/jophy/fasttld',
-    license='GPL',
+    license='MIT',
     author='Jophy',
     author_email='jophy.tsui@gmail.com',
-    description='Python high performance TLD extract module based on a compressed trie with builtin python dict.',
+    description='High performance TLD extraction module based on the compressed trie data '
+                'structure implemented with the builtin python dict().',
     include_package_data=True,
     zip_safe=False,
     install_requires=['idna', 'setuptools'],
@@ -50,5 +52,9 @@ setup(
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
                  ],
 )

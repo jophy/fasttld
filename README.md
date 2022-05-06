@@ -1,116 +1,140 @@
-fasttld
-=======
+# fasttld
+
 [![PyPI version](https://badge.fury.io/py/fasttld.svg)](https://badge.fury.io/py/fasttld)
 [![Build Status](https://api.travis-ci.org/jophy/fasttld.svg?branch=master)](https://travis-ci.org/jophy/fasttld)
+[![License](https://img.shields.io/badge/license-MIT-brightgreen)](LICENSE)
 
-`Fasttld` is a high performance TLD extract module based on a compressed [trie](https://en.wikipedia.org/wiki/Trie) 
-with builtin python dict().
+**fasttld** is a high performance [top level domains (TLD)](https://en.wikipedia.org/wiki/Top-level_domain) extraction module based on the compressed [trie](https://en.wikipedia.org/wiki/Trie) data structure
+implemented with the builtin python `dict()`.
 
 ![Trie](https://upload.wikimedia.org/wikipedia/commons/b/be/Trie_example.svg)
 
-# Background
-The plan of fasttld module is to extract top level domains from millions lines of domains (from DNS data) in one time. 
-In the other words, we extract "www.google.com" into "google.com". 
- 
-Most programmers think it is easy, just run `".".join(domain.split('.')[1::])`. But it is wrong ! Think about how to 
-process "www.baidu.com.cn". So we must know what suffixes are.
+## Background
 
-Thanks to [Mozilla Public Suffix List](http://www.publicsuffix.org), it provides us with all suffixes list, including 
-some private domains such like 'blogspot.co.uk', 'sinaapp.com'.
+The goal of **fasttld** is to extract [top level domains (TLDs)](https://en.wikipedia.org/wiki/Top-level_domain) from [URLs](https://en.wikipedia.org/wiki/URL) efficiently. In the other words, we extract `com` from URLs like `www.google.com` or `https://maps.google.com:8080/a/long/path/?query=42`.
 
-# Install
-You can install fasttld through PyPI.
+Running something like **".".join(domain.split('.')[1::])** is not a viable solution, for example, `maps.baidu.com.cn`
+would give us the wrong result `baidu.com.cn` instead of `com.cn`.
+
+The **fasttld** module solves this problem by using the regularly-updated [Mozilla Public Suffix List](http://www.publicsuffix.org) and the [trie](https://en.wikipedia.org/wiki/Trie) data structure to efficiently extract subdomains, hostnames, and TLDs from URLs.
+
+**fasttld** also supports extraction of private domains listed in the [Mozilla Public Suffix List](http://www.publicsuffix.org) like 'blogspot.co.uk' and 'sinaapp.com'.
+
+## Installation
+
+You can install fasttld from PyPI.
+
 ```python
 pip install fasttld
 ```
-or
+
+or build from source
+
 ```python
 git clone https://github.com/jophy/fasttld.git && cd fasttld
-python setup.py
+python setup.py install
 ```
 
-# Basic Usage
+## Usage
+
 ```python
 >>> from fasttld import FastTLDExtract
 >>> t = FastTLDExtract()
->>> res = t.extract("www.google.com")
->>> res
-('www', 'google', 'com', 'google.com')
->>> subdomain, domain, suffix, domain_name = res
->>> subdomain
-'www'
->>> domain
-'google'
->>> suffix
-'com'
->>> domain_name
-'google.com'
+>>> res = t.extract("https://some-user@a.long.subdomain.ox.ac.uk:5000/a/b/c/d/e/f/g/h/i?id=42")
+>>> scheme, userinfo, subdomain, domain, suffix, port, path, domain_name = res
+>>> scheme, userinfo, subdomain, domain, suffix, port, path, domain_name
+('https://', 'some-user', 'a.long.subdomain', 'ox', 'ac.uk', '5000', 'a/b/c/d/e/f/g/h/i?id=42', 'ox.ac.uk')
 ```
-extract() returns a tupple (subdomain, domain, suffix, domain_name) .
 
-# Update Public Suffix List
-`fasttld` will update Public Suffix List every 3 days automatically when it is called.
-You can also do update manually. Try the following commands.
+extract() returns a tuple `(scheme, userinfo, subdomain, domain, suffix, port, path, domain_name)` .
+
+## Update the Mozilla Public Suffix List local copy
+
+Whenever **fasttld** is called, it will automatically update the local copy of the Mozilla Public Suffix List if it is more than 3 days old.
+You can also run the update process manually via the following commands.
+
 ```python
 >>> import fasttld
 >>> fasttld.update()
 ```
+
 or
+
 ```python
 >>> from fasttld import FastTLDExtract
 >>> FastTLDExtract().update()
 ```
 
-# Specify Public Suffix List file
-You can specify your own public suffix list file. Samples see bellow.
+## Specify Mozilla Public Suffix List file
+
+You can also specify your own public suffix list file.
+
 ```python
 >>> from fasttld import FastTLDExtract
 >>> FastTLDExtract(file_path='/path/to/psl/file').extract('domain', subdomain=False)
 ```
 
-# Disable subdomain output
-You can disable subdomain output, this action can accelerate 0.3s per million times extracting.Samples see bellow.
+## Disable subdomain output
+
+If you do not need to extract subdomains, you can disable subdomain output with `subdomain=False`.
+
 ```python
 >>> from fasttld import FastTLDExtract
->>> FastTLDExtract().extract('domain', subdomain=False)
+>>> FastTLDExtract().extract('domain', subdomain=False) # set subdomain=False
 ```
-# Exclude private domain
-Due to security issues, public suffix list contains some private domains. Eg, blogspot.co.uk, sinaapp.com.
 
-`fasttld` can exclude private domain at the beginning of constructing the suffix trie. Samples see bellow.
+## Optional: Exclude private domains
+
+According to the [Mozilla.org wiki](https://wiki.mozilla.org/Public_Suffix_List/Uses), the Mozilla Public Suffix List contains private domains like `blogspot.co.uk` and `sinaapp.com` because some registered domain owners wish to delegate subdomains to mutually-untrusting parties, and find that being added to the PSL gives their solution more favourable security properties.
+
+By default, **fasttld** treats private domains as TLDs (i.e. `exclude_private_suffix=False`)
 
 ```python
 >>> from fasttld import FastTLDExtract
->>> FastTLDExtract(exclude_private_suffix=True).extract('news.blogspot.co.uk')
->>> ('news', 'blogspot', 'co.uk', 'blogspot.co.uk')
 >>> FastTLDExtract(exclude_private_suffix=False).extract('news.blogspot.co.uk')
->>> ('', 'news', 'blogspot.co.uk', 'news.blogspot.co.uk')
->>> FastTLDExtract().extract('news.blogspot.co.uk')  # default
->>> ('', 'news', 'blogspot.co.uk', 'news.blogspot.co.uk')
+>>> ('', '', '', 'news', 'blogspot.co.uk', '', '', 'news.blogspot.co.uk') # blogspot.co.uk is treated as a TLD
+>>> FastTLDExtract().extract('news.blogspot.co.uk')  # this is the default behaviour
+>>> ('', '', '', 'news', 'blogspot.co.uk', '', '', 'news.blogspot.co.uk') # same output as above
 ```
 
-# Comparison
-Comparing with the similar modules, eg, [tldextract](https://github.com/john-kurkowski/tldextract) , 
-[tld](https://github.com/barseghyanartur/tld). 
+You can instruct **fasttld** to exclude private domains by setting `exclude_private_suffix=True`
 
-Initialize the class just one time, calling extract function one million times. Results see below.
+```python
+>>> from fasttld import FastTLDExtract
+>>> FastTLDExtract(exclude_private_suffix=True).extract('news.blogspot.co.uk') # set exclude_private_suffix=True
+>>> ('', '', 'news', 'blogspot', 'co.uk', '', '', 'blogspot.co.uk') # notice that co.uk is now recognised as the TLD instead of blogspot.co.uk
+```
 
-Test environment: Macbook Pro 13', Intel Core i5 2.7 GHz, 8GB RAM.
+## Speed Comparison
 
+Similar modules include [tldextract](https://github.com/john-kurkowski/tldextract) and [tld](https://github.com/barseghyanartur/tld).
 
- module\case | jophy.com | www.baidu.com.cn|jo.noexist
--------------|-----------|-----------------|----------
-fasttld      |    2.93   |       3.37      |  1.86
-tldextract   |    8.68   |      11.69      |  9.22
-tld          |   11.50   |      11.15      |  12.06
+### Test conditions
 
-Disable subdomain output:
+Initialize the module class once, then call its extract function ten million times. Measure the time taken.
 
- module\case | jophy.com | www.baidu.com.cn|jo.noexist
--------------|-----------|-----------------|----------
-fasttld      |    2.73   |       3.08      |  1.90
+### Test environment
 
-`fasttld` is **five** times faster than the other modules.
+Python 3.9.12, AMD Ryzen 7 5800X 3.8 GHz 8 cores 16 threads, 48GB RAM
 
-# License
-Under MIT License
+### Test results
+
+| **module\case** | `jophy.com` | `www.baidu.com.cn` | `jo.noexist` | `https://maps.google.com.ua/a/long/path?query=42` | `1.1.1.1` | `https://192.168.55.1` |
+|-----------------|---------------|----------------------|----------------|-----------------------------------------------------|-------------|--------------------------|
+| fasttld         | 7.60s         | 9.90s                | 5.28s          | 5.67s                                               | 5.06s       | 5.30s                    |
+| tldextract      | 22.96s        | 29.32s               | 25.06s         | 31.69s                                              | 33.89s      | 35.15s                   |
+| tld             | 26.75s        | 29.00s               | 23.01s         | 27.55s                                              | 22.79s      | 22.55s                   |
+
+---
+
+Excluding subdomains (i.e. `subdomain=False`)
+
+| **module\case** | `jophy.com` | `www.baidu.com.cn` | `jo.noexist` | `https://maps.google.com.ua/a/long/path?query=42` | `1.1.1.1` | `https://192.168.55.1`
+|-----------------|---------------|----------------------|----------------|-----------------------------------------------------|-------------|--------------------------|
+| fasttld         | 7.55s         | 8.98s                | 5.20s          | 5.52s                                               | 5.13s       | 5.25s                    |
+
+On average, **fasttld** is **4 to 5** times faster than the other modules. It retains its performance advantage even when parsing long URLs like `https://maps.google.com.ua/a/long/path?query=42`
+
+## Acknowledgements
+
+- Some code borrowed from the [tldextract](https://github.com/john-kurkowski/tldextract) module
