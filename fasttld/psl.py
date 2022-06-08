@@ -8,6 +8,7 @@
 Copyright (c) 2022 Wu Tingfeng
 Copyright (c) 2017-2018 Jophy
 """
+import os
 import os.path
 import time
 
@@ -91,6 +92,8 @@ def auto_update():
     This function will update public_suffix_list.dat file every 3 days.
     :return:
     """
+    if os.environ.get("FASTTLD_NO_AUTO_UPDATE") == "1":
+        return
     need_update = False
     file_path = os.path.dirname(os.path.realpath(__file__)) + "/public_suffix_list.dat"
     if os.path.isfile(file_path):

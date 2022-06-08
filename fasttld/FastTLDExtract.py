@@ -31,7 +31,7 @@ def looks_like_ip(maybe_ip):
         return True
     except socket.error:  # for Python 2 compatibility
         pass
-    except (AttributeError, UnicodeError):
+    except (AttributeError, UnicodeError, ValueError):
         if IP_RE.match(maybe_ip):
             return True
 

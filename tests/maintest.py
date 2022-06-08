@@ -262,6 +262,10 @@ class FastTLDExtractCase(unittest.TestCase):
             all_suffix_asserts[3],
         )
 
+    def test_random_text(self):
+        self.assertEqual(all_suffix.extract("this is a text without a domain"), ("", "", "", "", "", "", "", ""))
+        self.assertEqual(all_suffix.extract("Null byte\x00string"), ("", "", "", "", "", "", "", ""))
+
     def test_nested_dict(self):
         d = {}
         all_suffix.nested_dict(d, keys=["ac"])

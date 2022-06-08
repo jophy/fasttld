@@ -65,6 +65,9 @@ or
 >>> FastTLDExtract().update()
 ```
 
+This option can be disabled setting the environment flag `FASTTLD_NO_AUTO_UPDATE` to `1`.
+
+
 ## Specify Mozilla Public Suffix List file
 
 You can also specify your own public suffix list file.
