@@ -10,6 +10,7 @@ Copyright (c) 2017-2018 Jophy
 """
 import re
 import socket
+from collections import namedtuple
 
 import idna
 
@@ -22,6 +23,20 @@ IP_RE = re.compile(
 
 # Characters valid in scheme names
 SCHEME_RE = re.compile(r"^[A-Za-z0-9+-.]+://")
+
+TLDResult = namedtuple(
+    "TLDResult",
+    [
+        "scheme",
+        "userinfo",
+        "subdomain",
+        "domain",
+        "suffix",
+        "port",
+        "path",
+        "domain_name",
+    ],
+)
 
 
 def looks_like_ip(maybe_ip):
@@ -104,12 +119,12 @@ class FastTLDExtract(object):
         :param raw_url:
         :param subdomain: Output options. This option will reduce efficiency. Maybe 10%
         :param format: To format raw_url string.
-        :return: Tuple(subdomain, domain, suffix, domain_name)
+        :return: NamedTuple(scheme, userinfo, subdomain, domain, suffix, port, path, domain_name)
         >>> FastTLDExtract.extract('www.google.com.hk', subdomain=True)
-        >>> ('www', 'google', 'com.hk', 'google.com.hk')
+        >>> TLDResult(scheme='', userinfo='', subdomain='www', domain='google', suffix='com.hk', port='', path='', domain_name='google.com.hk')
 
         >>> FastTLDExtract.extract('127.0.0.1', subdomain=True)
-        >>> ('', '127.0.0.1', '', '127.0.0.1')
+        >>> TLDResult(scheme='', userinfo='', subdomain='', domain='127.0.0.1', suffix='', port='', path='', domain_name='127.0.0.1')
         """
         ret_scheme = ret_userinfo = ret_subdomain = ret_domain = ""
         ret_suffix = ret_port = ret_path = ret_domain_name = ""
@@ -166,7 +181,16 @@ class FastTLDExtract(object):
 
         # Determine if raw_url is an IP address
         if len(netloc) != 0 and looks_like_ip(netloc):
-            return ("", netloc, "", netloc)
+            return TLDResult(
+                "",
+                "",
+                "",
+                netloc,
+                "",
+                "",
+                "",
+                netloc
+            )
 
         labels = netloc.split(".")
         labels.reverse()
@@ -218,8 +242,16 @@ class FastTLDExtract(object):
         if ret_domain and ret_suffix:
             ret_domain_name = "%s.%s" % (ret_domain, ret_suffix)
 
-        return (ret_scheme, ret_userinfo, ret_subdomain, ret_domain,
-                ret_suffix, ret_port, ret_path, ret_domain_name)
+        return TLDResult(
+            ret_scheme,
+            ret_userinfo,
+            ret_subdomain,
+            ret_domain,
+            ret_suffix,
+            ret_port,
+            ret_path,
+            ret_domain_name,
+        )
 
     def format(self, raw_url):
         """
